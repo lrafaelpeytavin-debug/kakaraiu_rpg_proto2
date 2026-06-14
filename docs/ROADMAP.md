@@ -133,6 +133,13 @@ Etat actuel:
 - collisions invisibles prototype;
 - transition vers `manorEntry`.
 
+Decisions apres test:
+
+- les backgrounds actuels valident le pipeline mais sont encore trop serres;
+- generer une vraie Section 1B avant d'aller trop loin;
+- refactorer ensuite Tyrih en tableau `tyrihSections`;
+- ne pas repartir de zero: utiliser les images actuelles comme references de palette, lumiere et composition.
+
 ### Chantier 2 - Asset pipeline
 
 Objectif: produire les images une par une et les integrer proprement.
@@ -182,6 +189,7 @@ Decisions actuelles:
 - vie de Raiu en coeurs;
 - chi en jauge;
 - renforcement en aura/timer;
+- renforcement reduit les degats de garde a 1/2 coeur;
 - chute = perte de vie + retour checkpoint;
 - mort = respawn narratif, pas game over brutal.
 - grappin = points d'accroche definis, corde visible, traction/projection.

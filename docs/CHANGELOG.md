@@ -2,6 +2,21 @@
 
 ## Non publie
 
+- Ajout de la vie de Raiu en 3 coeurs.
+- Degats garde:
+  - normal = 1 coeur;
+  - avec renforcement chi = 1/2 coeur.
+- Chutes et pieges de `manorEntry` retirent maintenant 1 coeur avant respawn.
+- Ajout de panneaux pedagogiques:
+  - grappin lors des premiers points d'accroche;
+  - chi de renforcement au premier garde du manoir.
+- Ajout d'un changement de musique par phase:
+  - Tyrih = `tyrih-lantern-debt.mp3`;
+  - manoir/entree = `lantern-debt.mp3`.
+- Documentation du diagnostic Tyrih:
+  - backgrounds encore trop serres;
+  - besoin d'une Section 1B;
+  - futur refactor `tyrihSections`.
 - Ajout du chantier `CHANTIER_002_TYRIH_TOITS.md`.
 - Ajout des backgrounds peints Tyrih:
   - `assets/tyrih-rooftop-01-slums.png`;

@@ -99,6 +99,85 @@ La transition vers le manoir se fait seulement a la fin de la Section 2:
 rooftops -> manorEntry -> manor
 ```
 
+## Retour apres test
+
+Le commit `Replace procedural Tyrih rooftops with painted sections` valide le pipeline, mais confirme que nous sommes encore au stade maquette jouable.
+
+Points valides:
+
+- le rendu procedural visible a bien ete remplace;
+- les backgrounds peints donnent tout de suite une identite a Tyrih;
+- la structure narrative `rooftops -> manorEntry -> manor` fonctionne;
+- le repo peut maintenant recevoir des sections peintes une par une.
+
+Points fragiles:
+
+- les backgrounds donnent encore une sensation trop serree;
+- le grappin existe techniquement mais il n'est pas encore indispensable au level design;
+- les collisions en pourcentages dans `generateRooftops()` deviendront vite illisibles;
+- la Section 2 actuelle ressemble deja a une grande ouverture/panorama, pas a une simple continuation pauvre;
+- il manque une vraie Section 1B, plus large mais encore populaire et etouffante.
+
+Decision de direction:
+
+```text
+Section 1A = slums_start
+Section 1B = slums_continuation
+Section 2 = market_opening
+```
+
+La Section 1B doit rester quartier pauvre:
+
+- toits serres;
+- linge;
+- fumees;
+- petites lanternes;
+- quelques feux d'artifice au loin;
+- pas encore la mega-ouverture marche/panorama.
+
+## Refactor recommande
+
+Avant d'ajouter trop de backgrounds, transformer la phase en donnees explicites:
+
+```js
+const tyrihSections = [
+  {
+    id: "slums_start",
+    image: "assets/tyrih-rooftop-01-slums.png",
+    platforms: [],
+    anchors: [],
+    guards: []
+  },
+  {
+    id: "slums_continuation",
+    image: "assets/tyrih-rooftop-01-slums-b.png",
+    platforms: [],
+    anchors: [],
+    guards: []
+  },
+  {
+    id: "market_opening",
+    image: "assets/tyrih-rooftop-02-market.png",
+    platforms: [],
+    anchors: [],
+    guards: []
+  }
+];
+```
+
+Objectif: pouvoir ajouter, remplacer ou renommer une section sans casser tout `generateRooftops()`.
+
+## Decor: ne pas repartir de zero
+
+Pour eviter de tout refaire:
+
+1. garder les backgrounds actuels comme prototypes de pipeline;
+2. les renommer mentalement comme `1A` et `2 prototype`;
+3. generer une Section `1B` qui raccorde visuellement les deux;
+4. elargir par ajout de sections, pas en etirant une image existante;
+5. conserver les collisions invisibles mais les sortir dans des objets de section;
+6. utiliser les images actuelles comme references de palette/lumiere pour les nouvelles generations.
+
 ## Musique
 
 La musique Tyrih actuelle est:
@@ -118,5 +197,6 @@ Lantern Debt (1).mp3
 1. Tester les collisions sur Section 1.
 2. Tester les collisions sur Section 2.
 3. Ajuster les points de grappin Tyrih sur les mats/cordes visibles.
-4. Ajouter une vraie Section 3 dediee au grand gap.
-5. Ajouter la vie de Raiu en coeurs avant d'introduire trop de gardes.
+4. Generer une vraie Section 1B.
+5. Refactorer `rooftops` en tableau `tyrihSections`.
+6. Ajouter une vraie Section 3 dediee au grand gap.

@@ -24,6 +24,7 @@ Valeur de depart:
 
 ```text
 3 coeurs
+6 demi-coeurs internes
 ```
 
 Progression possible:
@@ -37,6 +38,7 @@ Degats proposes:
 
 ```text
 garde touche Raiu = -1 coeur
+garde touche Raiu pendant renforcement = -1/2 coeur
 chute = -1 coeur
 piege = -1 coeur
 attaque speciale ennemie = -2 coeurs plus tard
@@ -68,6 +70,13 @@ Structure UI:
 Vie = coeurs
 Chi = jauge
 Renforcement = aura + timer
+```
+
+Regle actuelle:
+
+```text
+Shift / bouton Chi = renforcement
+degats de garde reduits de 1 coeur a 1/2 coeur
 ```
 
 ## Chute
@@ -165,6 +174,15 @@ contact garde = -1 coeur + knockback + invincibilite courte
 0 coeur = respawn checkpoint
 ```
 
+Etat actuel:
+
+```text
+vie implementee
+3 coeurs affiches
+contact garde = -1 coeur
+contact garde sous renforcement = -1/2 coeur
+```
+
 A ameliorer:
 
 - telegraphier l'attaque;
@@ -241,3 +259,12 @@ Ameliorations futures:
 - ratage plus lisible;
 - indicateur de visee plus clair;
 - combinaison plus forte avec le chi d'allegement.
+
+## Panneaux pedagogiques
+
+Des panneaux de tutoriel courts sont utilises pour les mecaniques peu lisibles:
+
+- premier passage avec cercles de grappin: explication du grappin;
+- premier garde du manoir: explication du chi de renforcement.
+
+Objectif: eviter que le joueur voie des boutons decoratifs sans comprendre leur usage.

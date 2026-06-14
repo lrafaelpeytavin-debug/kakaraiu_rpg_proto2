@@ -190,6 +190,40 @@
     border-radius: 2px;
     transition: width 0.2s;
   }
+  #heart-container {
+    position: fixed;
+    top: 58px; left: 38px;
+    display: flex;
+    gap: 7px;
+    z-index: 12;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.65));
+  }
+  .heart {
+    position: relative;
+    width: 25px;
+    height: 24px;
+    color: rgba(80,30,35,0.7);
+    font-size: 24px;
+    line-height: 24px;
+  }
+  .heart::before {
+    content: '♥';
+    position: absolute;
+    inset: 0;
+  }
+  .heart-fill {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    overflow: hidden;
+    color: #cf3434;
+  }
+  .heart-fill::before {
+    content: '♥';
+    position: absolute;
+    inset: 0;
+  }
   #phase-indicator {
     position: fixed;
     top: 32px; left: 40px;
@@ -240,6 +274,7 @@
     <h2>Chapitre I — Les Lanternes de Tyrih</h2>
   </div>
   <div id="phase-indicator">— Les Toits —</div>
+  <div id="heart-container" aria-label="Vie de Raiu"></div>
   <div id="guard-health">
     <div id="guard-label">Garde</div>
     <div id="guard-bar-bg"><div id="guard-bar"></div></div>
@@ -383,6 +418,10 @@ manorEntryImages.forEach((img) => {
 
 let phase = 'rooftops'; // rooftops | manorEntry | manor | fight | escape
 let t = 0;
+const tutorialsShown = {
+  grapple: false,
+  reinforce: false,
+};
 let tyrihWorldWidth = 0;
 let tyrihPanelWidth = 0;
 let manorWorldWidth = 0;
@@ -553,6 +592,8 @@ const raiu = {
   reinforceTimer: 0,
   reinforceCost: 0.5,
   // Combat
+  hp: 6,
+  maxHp: 6,
   attacking: false,
   attackTimer: 0,
   attackCooldown: 0,
@@ -617,6 +658,23 @@ const reinforceButton = document.getElementById('reinforce-button');
 const grappleButton = document.getElementById('grapple-button');
 const audioToggle = document.getElementById('audio-toggle');
 const music = document.getElementById('music');
+const MUSIC_TRACKS = {
+  tyrih: 'assets/tyrih-lantern-debt.mp3',
+  manor: 'assets/lantern-debt.mp3',
+};
+function setMusicTrack(track) {
+  const src = MUSIC_TRACKS[track] || MUSIC_TRACKS.tyrih;
+  if (music.getAttribute('src') === src) return;
+  const shouldResume = !music.paused;
+  music.setAttribute('src', src);
+  music.load();
+  if (shouldResume) {
+    music.volume = 0.42;
+    music.play().catch(() => {
+      audioToggle.textContent = 'Musique';
+    });
+  }
+}
 attackButton.addEventListener('pointerdown', e => {
   e.preventDefault();
   queuedAttack = true;
@@ -692,6 +750,21 @@ function triggerFlash(color, duration) {
 // ─── GUARD HP UI ───────────────────────────────────────────
 const guardHealthEl = document.getElementById('guard-health');
 const guardBarEl = document.getElementById('guard-bar');
+const heartContainerEl = document.getElementById('heart-container');
+function updateHeartUI() {
+  heartContainerEl.innerHTML = '';
+  const hearts = raiu.maxHp / 2;
+  for (let i = 0; i < hearts; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    const fill = document.createElement('div');
+    fill.className = 'heart-fill';
+    const units = Math.max(0, Math.min(2, raiu.hp - i * 2));
+    fill.style.width = units === 2 ? '100%' : units === 1 ? '50%' : '0%';
+    heart.appendChild(fill);
+    heartContainerEl.appendChild(heart);
+  }
+}
 function updateGuardUI() {
   if (phase === 'fight') {
     guardHealthEl.style.display = 'flex';
@@ -820,6 +893,7 @@ function setupManorEntryLevel() {
 
 function enterManorEntryPhase() {
   for (const code of Object.keys(keys)) keys[code] = false;
+  setMusicTrack('manor');
   phase = 'manorEntry';
   phaseIndicator.textContent = '— Infiltration —';
   worldOffset = 0;
@@ -834,6 +908,7 @@ function enterManorEntryPhase() {
 
 function enterManorPhase() {
   for (const code of Object.keys(keys)) keys[code] = false;
+  setMusicTrack('manor');
   phase = 'manor';
   phaseIndicator.textContent = '— Le Manoir —';
   // Reset world for manor
@@ -882,6 +957,26 @@ function showNarrative2(n) {
 }
 
 // ─── UPDATE ────────────────────────────────────────────────
+function maybeShowTutorials() {
+  if (narrative.classList.contains('visible')) return;
+  if (phase === 'rooftops' && !tutorialsShown.grapple && tyrihPanelWidth && raiu.x > tyrihPanelWidth * 0.42) {
+    tutorialsShown.grapple = true;
+    showNarrative2({
+      title: '— Grappin —',
+      text: 'Les cercles bleus signalent des points solides: cordes, mats, lanternes. Appuie sur E ou sur le bouton Grappin pour accrocher, saute ou tombe pour tendre la corde, puis appuie encore pour relacher.',
+      onClose: () => { gameActive = true; }
+    });
+  }
+  if ((phase === 'manor' || phase === 'fight') && guard.active && !tutorialsShown.reinforce) {
+    tutorialsShown.reinforce = true;
+    showNarrative2({
+      title: '— Chi de renforcement —',
+      text: 'Face a un garde, maintiens Shift ou touche Chi pour durcir le corps de Raiu. Les coups recus coutent alors un demi-coeur au lieu d’un coeur, mais la jauge de chi se vide.',
+      onClose: () => { gameActive = true; if (phase === 'manor') phase = 'fight'; updateGuardUI(); }
+    });
+  }
+}
+
 let manorTriggerFired = false;
 
 function update() {
@@ -913,7 +1008,10 @@ function update() {
   if (phase === 'manorEntry') updateEntryGuards();
   updateCamera();
   updateChiUI();
+  updateHeartUI();
   updateGuardUI();
+  maybeShowTutorials();
+  if (!gameActive) return;
 
   // Phase trigger: reach the end of Tyrih section 2.
   if (phase === 'rooftops' && !manorTriggerFired && raiu.x + raiu.w > tyrihWorldWidth - Math.max(120, W * 0.12)) {
@@ -991,21 +1089,48 @@ function respawnAtCheckpoint() {
   triggerFlash('rgba(180,40,40,0.25)', 250);
 }
 
-function hurtRaiuFromEntryGuard(g) {
+function damageRaiu(units, source = null) {
+  if (raiu.hurt) return;
   raiu.hurt = true;
   raiu.hurtTimer = 55;
+  raiu.hp = Math.max(0, raiu.hp - units);
+  if (source) {
+    const sourceCenter = source.x + source.w * 0.5;
+    const raiuCenter = raiu.x + raiu.w * 0.5;
+    const dir = raiuCenter < sourceCenter ? -1 : 1;
+    raiu.vx = dir * 4.8;
+    raiu.vy = -5;
+  }
+  if (grapple.mode === 'attached') {
+    grapple.mode = 'idle';
+    grapple.anchor = null;
+  }
+  updateHeartUI();
+  triggerFlash(units <= 1 ? 'rgba(255,150,70,0.18)' : 'rgba(180,40,40,0.22)', 180);
+  if (raiu.hp <= 0) {
+    setTimeout(() => {
+      raiu.hp = raiu.maxHp;
+      respawnAtCheckpoint();
+      updateHeartUI();
+    }, 250);
+  }
+}
+
+function damageRaiuAndRespawn(units) {
+  const wasAlive = raiu.hp > units;
+  damageRaiu(units);
+  if (wasAlive) {
+    setTimeout(respawnAtCheckpoint, 180);
+  }
+}
+
+function hurtRaiuFromEntryGuard(g) {
   entryGuardHitCooldown = 70;
   const raiuCenter = raiu.x + raiu.w * 0.5;
   const guardCenter = g.x + g.w * 0.5;
   const dir = raiuCenter < guardCenter ? -1 : 1;
   raiu.x = dir < 0 ? g.x - raiu.w - 6 : g.x + g.w + 6;
-  raiu.vx = dir * 4.8;
-  raiu.vy = -5;
-  if (grapple.mode === 'attached') {
-    grapple.mode = 'idle';
-    grapple.anchor = null;
-  }
-  triggerFlash('rgba(180,40,40,0.22)', 180);
+  damageRaiu(raiu.reinforceActive ? 1 : 2, g);
 }
 
 function updateManorEntryCheckpoints() {
@@ -1280,7 +1405,7 @@ function updateRaiu() {
     const px = p.x;
     if (raiu.x + raiu.w > px + 2 && raiu.x < px + p.w - 2) {
       if (phase === 'manorEntry' && p.type === 'danger_spikes' && raiu.y + raiu.h > p.y - 4 && raiu.y < p.y + p.h + 10) {
-        respawnAtCheckpoint();
+        damageRaiuAndRespawn(2);
         continue;
       }
       if (raiu.vy >= 0 && raiu.y + raiu.h > p.y && raiu.y + raiu.h < p.y + 20) {
@@ -1297,7 +1422,7 @@ function updateRaiu() {
   // Clamp
   if (phase === 'manorEntry') updateManorEntryCheckpoints();
   if (raiu.y > H + 160) {
-    if (phase === 'manorEntry') respawnAtCheckpoint();
+    if (phase === 'manorEntry') damageRaiuAndRespawn(2);
     else { raiu.y = 100; raiu.vy = 0; }
   }
   if (raiu.x < 60) { raiu.x = 60; raiu.vx = 0; }
@@ -1357,9 +1482,7 @@ function updateGuard() {
       // Guard attacks
       guard.state = 'attack';
       guard.stateTimer = 0;
-      raiu.hurt = true; raiu.hurtTimer = 20;
-      raiu.vx = -guard.facing * 6;
-      raiu.vy = -4;
+      damageRaiu(raiu.reinforceActive ? 1 : 2, guard);
       guard.attackCooldown = 80;
       triggerFlash('rgba(180,40,40,0.2)', 200);
     }
@@ -2260,6 +2383,7 @@ for (let i = 0; i < 18; i++) {
 // Position Raiu on first rooftop
 raiu.x = tyrihPanelWidth * 0.05;
 raiu.y = H * 0.28 - raiu.h;
+updateHeartUI();
 
 // Show opening narrative, or jump directly to a prototype phase for checks.
 const startPhase = new URLSearchParams(window.location.search).get('start');

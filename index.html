@@ -350,8 +350,15 @@ const GUARD_SPRITES = {
 };
 
 // ─── STATE ─────────────────────────────────────────────────
+const manorBg = new Image();
+manorBg.src = 'assets/manor-bg.png';
+let manorBgReady = false;
+manorBg.addEventListener('load', () => { manorBgReady = true; });
+
 let phase = 'rooftops'; // rooftops | manor | fight | escape
 let t = 0;
+let manorWorldWidth = 0;
+const DEBUG_MANOR_COLLISIONS = false;
 
 // ─── NARRATIVE SYSTEM ──────────────────────────────────────
 const narrativeQueue = [
@@ -641,25 +648,21 @@ function enterManorPhase() {
   // Reset world for manor
   worldOffset = 0;
   platforms = [];
-  // Manor floor
-  platforms.push({ x: -500, y: H * 0.78, w: 99999, h: 40, type: 'ground' });
-  // Some elevated platforms inside manor
-  platforms.push({ x: 300, y: H * 0.62, w: 120, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 600, y: H * 0.55, w: 80, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 900, y: H * 0.65, w: 140, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 1200, y: H * 0.58, w: 160, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 1510, y: H * 0.68, w: 150, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 1800, y: H * 0.57, w: 180, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 2140, y: H * 0.63, w: 130, h: 20, type: 'manor_ledge' });
-  platforms.push({ x: 2460, y: H * 0.52, w: 190, h: 20, type: 'manor_ledge' });
+  manorWorldWidth = Math.max(W * 1.35, W + 420);
+  // Painted manor collision rails aligned to assets/manor-bg.png.
+  platforms.push({ x: -40, y: H * 0.835, w: manorWorldWidth + 80, h: 36, type: 'ground' });
+  platforms.push({ x: manorWorldWidth * 0.17, y: H * 0.54, w: manorWorldWidth * 0.30, h: 18, type: 'manor_ledge' });
+  platforms.push({ x: manorWorldWidth * 0.055, y: H * 0.44, w: manorWorldWidth * 0.15, h: 18, type: 'manor_ledge' });
+  platforms.push({ x: manorWorldWidth * 0.55, y: H * 0.34, w: manorWorldWidth * 0.18, h: 18, type: 'manor_ledge' });
+  platforms.push({ x: manorWorldWidth * 0.84, y: H * 0.18, w: manorWorldWidth * 0.13, h: 18, type: 'manor_ledge' });
 
-  raiu.x = 120;
-  raiu.y = H * 0.78 - raiu.h;
+  raiu.x = manorWorldWidth * 0.08;
+  raiu.y = H * 0.835 - raiu.h;
   raiu.vx = 0; raiu.vy = 0;
 
   // Setup guard
-  guard.x = 650;
-  guard.y = H * 0.78 - guard.h;
+  guard.x = manorWorldWidth * 0.78;
+  guard.y = H * 0.835 - guard.h;
   guard.hp = guard.maxHp;
   guard.state = 'patrol';
   guard.active = true;
@@ -927,11 +930,17 @@ function updateRaiu() {
   // Clamp
   if (raiu.y > H + 200) { raiu.y = 100; raiu.vy = 0; }
   if (raiu.x < 60) { raiu.x = 60; raiu.vx = 0; }
+  if (phase === 'manor' && raiu.x + raiu.w > manorWorldWidth - 50) {
+    raiu.x = manorWorldWidth - 50 - raiu.w;
+    raiu.vx = 0;
+  }
 }
 
 function updateCamera() {
   const targetOffset = raiu.x - W * 0.35;
-  worldOffset += (Math.max(0, targetOffset) - worldOffset) * 0.08;
+  const maxOffset = phase === 'manor' ? Math.max(0, manorWorldWidth - W) : Number.POSITIVE_INFINITY;
+  const clampedTarget = Math.min(maxOffset, Math.max(0, targetOffset));
+  worldOffset += (clampedTarget - worldOffset) * 0.08;
 }
 
 function updateGuard() {
@@ -1071,6 +1080,35 @@ function drawRooftopScene() {
 }
 
 function drawManorScene() {
+  if (manorBgReady) {
+    ctx.fillStyle = '#020407';
+    ctx.fillRect(0, 0, W, H);
+
+    const drawW = manorWorldWidth || Math.max(W * 1.35, W + 420);
+    const drawH = drawW * (manorBg.height / manorBg.width);
+    const drawY = (H - drawH) * 0.48;
+    ctx.drawImage(manorBg, -worldOffset, drawY, drawW, drawH);
+
+    if (DEBUG_MANOR_COLLISIONS) {
+      for (const p of platforms) {
+        const px = p.x - worldOffset;
+        ctx.fillStyle = p.type === 'ground' ? 'rgba(120,200,255,0.16)' : 'rgba(255,210,80,0.22)';
+        ctx.fillRect(px, p.y, p.w, p.h);
+      }
+    }
+
+    if (guard.active) drawGuard();
+    drawRaiu();
+    drawParticles();
+
+    const vig = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.85);
+    vig.addColorStop(0, 'transparent');
+    vig.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+    return;
+  }
+
   // Manor interior - dark stone
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, '#040608');

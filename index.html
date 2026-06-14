@@ -730,49 +730,51 @@ function setupManorEntryLevel() {
   manorEntryPanelWidth = Math.max(W, H * ratio);
   manorEntryWorldWidth = manorEntryPanelWidth * 2;
 
-  addEntryPlatform(0, 0.02, 0.67, 0.15);
-  addEntryPlatform(0, 0.00, 0.88, 0.18);
-  addEntryPlatform(0, 0.18, 0.58, 0.17);
-  addEntryPlatform(0, 0.37, 0.40, 0.15);
-  addEntryPlatform(0, 0.45, 0.62, 0.11);
-  addEntryPlatform(0, 0.52, 0.79, 0.17, 18, 'danger_spikes');
-  addEntryPlatform(0, 0.58, 0.36, 0.12);
-  addEntryPlatform(0, 0.65, 0.55, 0.18);
-  addEntryPlatform(0, 0.74, 0.40, 0.11);
-  addEntryPlatform(0, 0.78, 0.73, 0.14);
-  addEntryPlatform(0, 0.86, 0.30, 0.10);
-  addEntryPlatform(0, 0.89, 0.60, 0.11);
+  // Panel 1 is the entry image with the open blue window at top-left.
+  addEntryPlatform(0, 0.035, 0.355, 0.22);
+  addEntryPlatform(0, 0.17, 0.49, 0.10);
+  addEntryPlatform(0, 0.32, 0.53, 0.15);
+  addEntryPlatform(0, 0.51, 0.49, 0.16);
+  addEntryPlatform(0, 0.68, 0.37, 0.15);
+  addEntryPlatform(0, 0.75, 0.76, 0.15, 18, 'danger_spikes');
+  addEntryPlatform(0, 0.83, 0.50, 0.12);
+  addEntryPlatform(0, 0.87, 0.26, 0.12);
+  addEntryPlatform(0, 0.88, 0.61, 0.10);
+  addEntryPlatform(0, 0.00, 0.87, 0.34);
+  addEntryPlatform(0, 0.42, 0.88, 0.23);
 
-  addEntryPlatform(1, 0.02, 0.22, 0.15);
-  addEntryPlatform(1, 0.02, 0.62, 0.28);
-  addEntryPlatform(1, 0.18, 0.48, 0.09);
-  addEntryPlatform(1, 0.34, 0.48, 0.15);
-  addEntryPlatform(1, 0.50, 0.39, 0.16);
-  addEntryPlatform(1, 0.53, 0.86, 0.17);
-  addEntryPlatform(1, 0.68, 0.72, 0.13, 18, 'danger_spikes');
-  addEntryPlatform(1, 0.72, 0.49, 0.14);
-  addEntryPlatform(1, 0.83, 0.27, 0.13);
-  addEntryPlatform(1, 0.88, 0.61, 0.10);
-  addEntryPlatform(1, 0.88, 0.85, 0.11);
+  // Panel 2 is the denser traversal room.
+  addEntryPlatform(1, 0.02, 0.67, 0.15);
+  addEntryPlatform(1, 0.00, 0.88, 0.18);
+  addEntryPlatform(1, 0.18, 0.58, 0.17);
+  addEntryPlatform(1, 0.37, 0.40, 0.15);
+  addEntryPlatform(1, 0.45, 0.62, 0.11);
+  addEntryPlatform(1, 0.52, 0.79, 0.17, 18, 'danger_spikes');
+  addEntryPlatform(1, 0.58, 0.36, 0.12);
+  addEntryPlatform(1, 0.65, 0.55, 0.18);
+  addEntryPlatform(1, 0.74, 0.40, 0.11);
+  addEntryPlatform(1, 0.78, 0.73, 0.14);
+  addEntryPlatform(1, 0.86, 0.30, 0.10);
+  addEntryPlatform(1, 0.89, 0.60, 0.11);
 
-  addGrappleAnchor(0, 0.22, 0.34, 'chaine-01');
-  addGrappleAnchor(0, 0.40, 0.18, 'poutre-01');
-  addGrappleAnchor(0, 0.58, 0.50, 'lanterne-01');
-  addGrappleAnchor(0, 0.73, 0.24, 'poutre-02');
-  addGrappleAnchor(0, 0.86, 0.19, 'chaine-02');
-  addGrappleAnchor(1, 0.18, 0.28, 'poutre-03');
-  addGrappleAnchor(1, 0.45, 0.18, 'chaine-03');
-  addGrappleAnchor(1, 0.67, 0.42, 'lanterne-02');
-  addGrappleAnchor(1, 0.81, 0.12, 'poutre-04');
+  addGrappleAnchor(0, 0.20, 0.26, 'potence-01');
+  addGrappleAnchor(0, 0.45, 0.08, 'poutre-01');
+  addGrappleAnchor(0, 0.58, 0.80, 'lanterne-01');
+  addGrappleAnchor(0, 0.77, 0.30, 'plateforme-suspendue-01');
+  addGrappleAnchor(0, 0.88, 0.12, 'poutre-02');
+  addGrappleAnchor(1, 0.22, 0.34, 'chaine-02');
+  addGrappleAnchor(1, 0.40, 0.18, 'poutre-03');
+  addGrappleAnchor(1, 0.58, 0.50, 'lanterne-02');
+  addGrappleAnchor(1, 0.73, 0.24, 'poutre-04');
+  addGrappleAnchor(1, 0.86, 0.19, 'chaine-03');
 
-  addEntryGuard(0, 0.66, 0.55, 0.62, 0.80);
-  addEntryGuard(1, 0.58, 0.86, 0.53, 0.70);
-  addEntryGuard(1, 0.92, 0.85, 0.88, 0.98);
+  addEntryGuard(0, 0.92, 0.85, 0.88, 0.98);
+  addEntryGuard(1, 0.66, 0.55, 0.62, 0.80);
 
-  manorEntryCheckpoints.push({ x: entryX(0, 0.57), y: entryY(0.36) - raiu.h });
-  manorEntryCheckpoints.push({ x: entryX(1, 0.05), y: entryY(0.22) - raiu.h });
+  manorEntryCheckpoints.push({ x: entryX(0, 0.36), y: entryY(0.53) - raiu.h });
+  manorEntryCheckpoints.push({ x: entryX(1, 0.05), y: entryY(0.67) - raiu.h });
 
-  currentCheckpoint = { x: entryX(0, 0.52), y: entryY(0.34) - raiu.h };
+  currentCheckpoint = { x: entryX(0, 0.07), y: entryY(0.355) - raiu.h };
   raiu.x = currentCheckpoint.x;
   raiu.y = currentCheckpoint.y;
   raiu.vx = 0;
@@ -952,6 +954,18 @@ function respawnAtCheckpoint() {
   triggerFlash('rgba(180,40,40,0.25)', 250);
 }
 
+function hurtRaiuFromEntryGuard(g) {
+  raiu.hurt = true;
+  raiu.hurtTimer = 55;
+  raiu.vx = raiu.x < g.x ? -7 : 7;
+  raiu.vy = -5;
+  if (grapple.mode === 'attached') {
+    grapple.mode = 'idle';
+    grapple.anchor = null;
+  }
+  triggerFlash('rgba(180,40,40,0.22)', 180);
+}
+
 function updateManorEntryCheckpoints() {
   for (const cp of manorEntryCheckpoints) {
     if (raiu.x > cp.x - 80) currentCheckpoint = cp;
@@ -1042,37 +1056,36 @@ function updateGrapplePhysics() {
   if (keys['ArrowDown'] || keys['KeyS']) {
     grapple.ropeLength = Math.min(GRAPPLE_MAX_DISTANCE, grapple.ropeLength + GRAPPLE_LENGTHEN_SPEED);
   }
-  if (keys['ArrowLeft'] || keys['KeyA']) raiu.vx -= 0.11;
-  if (keys['ArrowRight'] || keys['KeyD']) raiu.vx += 0.11;
-
-  const gravityScale = raiu.chiJumpActive ? GRAPPLE_CHI_GRAVITY : 1;
-  raiu.vy += GRAVITY * gravityScale;
-  raiu.x += raiu.vx;
-  raiu.y += raiu.vy;
 
   const centerX = raiu.x + raiu.w * 0.5;
   const centerY = raiu.y + raiu.h * 0.35;
-  let dx = centerX - grapple.anchor.x;
-  let dy = centerY - grapple.anchor.y;
-  let dist = Math.hypot(dx, dy) || 1;
+  const dx = centerX - grapple.anchor.x;
+  const dy = centerY - grapple.anchor.y;
+  const dist = Math.hypot(dx, dy) || 1;
   const nx = dx / dist;
   const ny = dy / dist;
-  const targetCx = grapple.anchor.x + nx * grapple.ropeLength;
-  const targetCy = grapple.anchor.y + ny * grapple.ropeLength;
 
-  raiu.x += targetCx - centerX;
-  raiu.y += targetCy - centerY;
+  if (dist > grapple.ropeLength) {
+    const stretch = dist - grapple.ropeLength;
+    const pull = Math.min(1.25, stretch * 0.035);
+    raiu.vx -= nx * pull;
+    raiu.vy -= ny * pull;
 
-  const radialVelocity = raiu.vx * nx + raiu.vy * ny;
-  if (radialVelocity > 0) {
-    raiu.vx -= radialVelocity * nx;
-    raiu.vy -= radialVelocity * ny;
+    const radialVelocity = raiu.vx * nx + raiu.vy * ny;
+    if (radialVelocity > 0) {
+      raiu.vx -= radialVelocity * nx * 0.55;
+      raiu.vy -= radialVelocity * ny * 0.55;
+    }
+
+    if (stretch > 24) {
+      raiu.x -= nx * Math.min(8, stretch * 0.18);
+      raiu.y -= ny * Math.min(8, stretch * 0.18);
+    }
   }
+  if (raiu.chiJumpActive) raiu.vy -= GRAVITY * (1 - GRAPPLE_CHI_GRAVITY);
   raiu.vx *= GRAPPLE_DAMPING;
-  raiu.vy *= GRAPPLE_DAMPING;
   grapple.vibration = Math.max(0, grapple.vibration - 1);
-  raiu.state = 'fall';
-  return true;
+  return false;
 }
 
 function updateRaiu() {
@@ -1341,7 +1354,7 @@ function updateEntryGuards() {
       raiu.y < g.y + g.h &&
       raiu.y + raiu.h > g.y;
     if (overlap && !raiu.hurt) {
-      respawnAtCheckpoint();
+      hurtRaiuFromEntryGuard(g);
     }
   }
 }

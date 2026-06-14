@@ -19,6 +19,13 @@ assets/manor-entry-01.png
 assets/manor-entry-02.png
 ```
 
+Ordre corrige:
+
+```text
+manor-entry-01.png = salle avec la grande fenetre ouverte en haut a gauche
+manor-entry-02.png = salle plus dense avec plateformes suspendues
+```
+
 Ordre de progression:
 
 ```text
@@ -49,7 +56,7 @@ Aucune mecanique de combat complexe n'est necessaire dans `manorEntry`.
 
 ## Depart
 
-Raiu commence pres de la fenetre haute du premier background. Cette fenetre represente son point d'infiltration.
+Raiu commence pres de la fenetre haute gauche du premier background. Cette fenetre represente son point d'infiltration.
 
 Le joueur commence directement en hauteur pour comprendre que le niveau se lit verticalement, pas seulement comme un couloir horizontal.
 
@@ -80,13 +87,19 @@ Comportement acceptable:
 - contact dangereux;
 - pas de combat complexe.
 
+Ancienne decision prototype, rejetee apres test:
+
+```text
+contact garde = respawn checkpoint immediat
+```
+
 Decision actuelle pour le prototype:
 
 ```text
-contact garde = respawn checkpoint
+contact garde = choc + knockback + invincibilite courte
 ```
 
-Cela force Raiu a passer au-dessus des gardes avec saut, plateformes et grappin.
+Plus tard, ce choc retirera un coeur quand la vie de Raiu sera branchee.
 
 ## Vides et dangers
 
@@ -121,7 +134,9 @@ Version prototype:
 - points d'accroche definis par le level design;
 - accroche seulement sur points valides;
 - corde visible;
-- traction type pendule simplifie;
+- tension de corde non bloquante;
+- Raiu peut marcher et sauter avec la corde accrochee;
+- la corde retient Raiu quand il tombe ou quand elle devient tendue;
 - relachement avec multiplication de vitesse.
 
 Parametres actuels:

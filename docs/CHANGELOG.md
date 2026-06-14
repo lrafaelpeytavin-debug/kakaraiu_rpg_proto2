@@ -2,6 +2,13 @@
 
 ## Non publie
 
+- Correction de l'ordre des backgrounds `manorEntry`:
+  - `manor-entry-01.png` = entree par la fenetre haute gauche;
+  - `manor-entry-02.png` = seconde salle plus dense.
+- Repositionnement du spawn de Raiu sur la fenetre haute gauche du premier background.
+- Ajustement des plateformes, gardes et points de grappin de `manorEntry` apres inversion des images.
+- Modification du grappin: la corde ajoute maintenant une tension sans bloquer la marche ni le saut.
+- Modification du contact garde dans `manorEntry`: choc/knockback temporaire au lieu de respawn immediat.
 - Ajout de la phase `manorEntry` avant le manoir existant.
 - Ajout de `assets/manor-entry-01.png` et `assets/manor-entry-02.png`.
 - Assemblage horizontal des deux backgrounds d'entree du manoir.

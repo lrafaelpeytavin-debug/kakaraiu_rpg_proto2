@@ -146,10 +146,23 @@ Dans `manorEntry`, les gardes sont plus simples:
 - pas de combat complexe;
 - objectif: pousser le joueur a passer au-dessus.
 
-Regle prototype:
+Regle prototype actuelle:
 
 ```text
-contact garde dans manorEntry = respawn checkpoint
+contact garde dans manorEntry = choc + knockback + invincibilite courte
+```
+
+Ce comportement remplace l'ancien placeholder trop brutal:
+
+```text
+contact garde = respawn checkpoint immediat
+```
+
+Quand la vie de Raiu sera implementee:
+
+```text
+contact garde = -1 coeur + knockback + invincibilite courte
+0 coeur = respawn checkpoint
 ```
 
 A ameliorer:
@@ -203,7 +216,9 @@ Physique actuelle:
 
 - recherche du point d'accroche dans la direction visee;
 - corde visible;
-- traction de type pendule simplifie;
+- tension de corde non bloquante;
+- Raiu peut encore marcher et sauter pendant que la corde est accrochee;
+- si Raiu tombe ou saute, la corde le retient quand elle devient tendue;
 - raccourcir/allonger avec haut/bas pendant l'accroche;
 - relachement avec projection.
 

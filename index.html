@@ -272,7 +272,7 @@
   </div>
 </div>
 <div id="flash"></div>
-<audio id="music" src="assets/lantern-debt.mp3" loop preload="auto"></audio>
+<audio id="music" src="assets/tyrih-lantern-debt.mp3" loop preload="auto"></audio>
 
 <script>
 const canvas = document.getElementById('c');
@@ -357,6 +357,18 @@ manorBg.src = 'assets/manor-bg.png';
 let manorBgReady = false;
 manorBg.addEventListener('load', () => { manorBgReady = true; });
 
+const tyrihRooftopImages = [new Image(), new Image()];
+tyrihRooftopImages[0].src = 'assets/tyrih-rooftop-01-slums.png';
+tyrihRooftopImages[1].src = 'assets/tyrih-rooftop-02-market.png';
+let tyrihRooftopsReady = false;
+let loadedTyrihRooftops = 0;
+tyrihRooftopImages.forEach((img) => {
+  img.addEventListener('load', () => {
+    loadedTyrihRooftops++;
+    tyrihRooftopsReady = loadedTyrihRooftops === tyrihRooftopImages.length;
+  });
+});
+
 const manorEntryImages = [new Image(), new Image()];
 manorEntryImages[0].src = 'assets/manor-entry-01.png';
 manorEntryImages[1].src = 'assets/manor-entry-02.png';
@@ -371,11 +383,14 @@ manorEntryImages.forEach((img) => {
 
 let phase = 'rooftops'; // rooftops | manorEntry | manor | fight | escape
 let t = 0;
+let tyrihWorldWidth = 0;
+let tyrihPanelWidth = 0;
 let manorWorldWidth = 0;
 let manorEntryWorldWidth = 0;
 let manorEntryPanelWidth = 0;
 const DEBUG_MANOR_COLLISIONS = false;
 const DEBUG_MANOR_ENTRY = false;
+const DEBUG_TYRIH_COLLISIONS = false;
 
 // ─── NARRATIVE SYSTEM ──────────────────────────────────────
 const narrativeQueue = [
@@ -423,30 +438,48 @@ let worldSpeed = 0;
 
 function generateRooftops() {
   platforms = [];
-  let x = -200;
-  const baseY = H * 0.72;
-  // Ground
-  platforms.push({ x: -500, y: baseY + 160, w: 99999, h: 40, type: 'ground' });
+  grappleAnchors.length = 0;
+  const sample = tyrihRooftopImages[0];
+  const ratio = sample && sample.naturalWidth ? sample.naturalWidth / sample.naturalHeight : 8 / 3;
+  tyrihPanelWidth = Math.max(W, H * ratio);
+  tyrihWorldWidth = tyrihPanelWidth * 2;
 
-  const roofConfigs = [
-    { w: 180, h: 30, gap: 60,  dy: 0   },
-    { w: 120, h: 25, gap: 80,  dy: -40 },
-    { w: 200, h: 35, gap: 50,  dy: 20  },
-    { w: 150, h: 28, gap: 90,  dy: -60 },
-    { w: 100, h: 22, gap: 70,  dy: -30 },
-    { w: 220, h: 40, gap: 40,  dy: 10  },
-    { w: 130, h: 26, gap: 100, dy: -50 },
-    { w: 160, h: 32, gap: 60,  dy: 30  },
-  ];
+  const tx = (panel, pct) => panel * tyrihPanelWidth + tyrihPanelWidth * pct;
+  const ty = (pct) => H * pct;
+  const addRoof = (panel, x, y, w, h = 18, type = 'tyrih_roof') => {
+    platforms.push({ x: tx(panel, x), y: ty(y), w: tyrihPanelWidth * w, h, type });
+  };
+  const addTyrihAnchor = (panel, x, y, label) => {
+    grappleAnchors.push({ x: tx(panel, x), y: ty(y), label });
+  };
 
-  let i = 0;
-  while (x < W * 6) {
-    const c = roofConfigs[i % roofConfigs.length];
-    const y = baseY + c.dy + Math.sin(x * 0.003) * 20;
-    platforms.push({ x, y, w: c.w, h: c.h, type: 'roof', ridgeH: c.h * 0.4 });
-    x += c.w + c.gap;
-    i++;
-  }
+  // Section 1: slums / rooftops opening toward Tyrih.
+  addRoof(0, 0.00, 0.28, 0.15);
+  addRoof(0, 0.11, 0.52, 0.12);
+  addRoof(0, 0.20, 0.74, 0.14);
+  addRoof(0, 0.31, 0.82, 0.12);
+  addRoof(0, 0.44, 0.78, 0.13);
+  addRoof(0, 0.60, 0.70, 0.14);
+  addRoof(0, 0.80, 0.54, 0.17);
+  addRoof(0, 0.91, 0.70, 0.09);
+
+  // Section 2: market panorama, wider gaps and first bigger jumps.
+  addRoof(1, 0.00, 0.55, 0.12);
+  addRoof(1, 0.12, 0.64, 0.12);
+  addRoof(1, 0.27, 0.79, 0.15);
+  addRoof(1, 0.43, 0.76, 0.11);
+  addRoof(1, 0.55, 0.68, 0.10);
+  addRoof(1, 0.67, 0.58, 0.12);
+  addRoof(1, 0.82, 0.62, 0.16);
+  addRoof(1, 0.94, 0.76, 0.08);
+
+  addTyrihAnchor(0, 0.24, 0.36, 'linge-01');
+  addTyrihAnchor(0, 0.54, 0.34, 'lanterne-01');
+  addTyrihAnchor(0, 0.73, 0.23, 'mat-01');
+  addTyrihAnchor(1, 0.16, 0.36, 'corde-marche-01');
+  addTyrihAnchor(1, 0.45, 0.30, 'mat-lanternes-01');
+  addTyrihAnchor(1, 0.68, 0.30, 'toit-haut-01');
+  addTyrihAnchor(1, 0.88, 0.38, 'enseigne-01');
 }
 
 // ─── LANTERNS ──────────────────────────────────────────────
@@ -549,6 +582,7 @@ const guard = {
 let entryGuards = [];
 let manorEntryCheckpoints = [];
 let currentCheckpoint = { x: 150, y: 100 };
+let entryGuardHitCooldown = 0;
 
 const grapple = {
   mode: 'idle', // idle|attached|miss
@@ -785,6 +819,7 @@ function setupManorEntryLevel() {
 }
 
 function enterManorEntryPhase() {
+  for (const code of Object.keys(keys)) keys[code] = false;
   phase = 'manorEntry';
   phaseIndicator.textContent = '— Infiltration —';
   worldOffset = 0;
@@ -798,6 +833,7 @@ function enterManorEntryPhase() {
 }
 
 function enterManorPhase() {
+  for (const code of Object.keys(keys)) keys[code] = false;
   phase = 'manor';
   phaseIndicator.textContent = '— Le Manoir —';
   // Reset world for manor
@@ -879,14 +915,15 @@ function update() {
   updateChiUI();
   updateGuardUI();
 
-  // Phase trigger: reach end of rooftops
-  if (phase === 'rooftops' && !manorTriggerFired && raiu.x > W * 4.5) {
+  // Phase trigger: reach the end of Tyrih section 2.
+  if (phase === 'rooftops' && !manorTriggerFired && raiu.x + raiu.w > tyrihWorldWidth - Math.max(120, W * 0.12)) {
     manorTriggerFired = true;
     gameActive = false;
     setTimeout(enterManorEntryPhase, 600);
   }
 
-  if (phase === 'manorEntry' && raiu.x > manorEntryWorldWidth - 90) {
+  const entryExitX = manorEntryWorldWidth - Math.max(170, W * 0.18);
+  if (phase === 'manorEntry' && raiu.x + raiu.w > entryExitX && raiu.onGround && !raiu.hurt && Math.abs(raiu.vx) < 6) {
     gameActive = false;
     setTimeout(enterManorPhase, 450);
   }
@@ -957,7 +994,12 @@ function respawnAtCheckpoint() {
 function hurtRaiuFromEntryGuard(g) {
   raiu.hurt = true;
   raiu.hurtTimer = 55;
-  raiu.vx = raiu.x < g.x ? -7 : 7;
+  entryGuardHitCooldown = 70;
+  const raiuCenter = raiu.x + raiu.w * 0.5;
+  const guardCenter = g.x + g.w * 0.5;
+  const dir = raiuCenter < guardCenter ? -1 : 1;
+  raiu.x = dir < 0 ? g.x - raiu.w - 6 : g.x + g.w + 6;
+  raiu.vx = dir * 4.8;
   raiu.vy = -5;
   if (grapple.mode === 'attached') {
     grapple.mode = 'idle';
@@ -985,7 +1027,7 @@ function getGrappleAimVector() {
 }
 
 function findGrappleTarget() {
-  if (phase !== 'manorEntry') return null;
+  if (phase !== 'manorEntry' && phase !== 'rooftops') return null;
   const cx = raiu.x + raiu.w * 0.5;
   const cy = raiu.y + raiu.h * 0.35;
   const aim = getGrappleAimVector();
@@ -1008,7 +1050,7 @@ function findGrappleTarget() {
 }
 
 function toggleGrapple() {
-  if (phase !== 'manorEntry') return;
+  if (phase !== 'manorEntry' && phase !== 'rooftops') return;
   if (grapple.mode === 'attached') {
     grapple.mode = 'idle';
     grapple.anchor = null;
@@ -1102,6 +1144,7 @@ function updateRaiu() {
 
   // Attack cooldown
   if (raiu.attackCooldown > 0) raiu.attackCooldown--;
+  if (entryGuardHitCooldown > 0) entryGuardHitCooldown--;
   if (raiu.attacking) {
     raiu.attackTimer--;
     if (raiu.attackTimer <= 0) { raiu.attacking = false; raiu.state = 'idle'; }
@@ -1226,6 +1269,11 @@ function updateRaiu() {
     raiu.y += raiu.vy;
   }
 
+  if (phase === 'manorEntry') {
+    raiu.vx = Math.max(-8, Math.min(8, raiu.vx));
+    raiu.vy = Math.max(-18, Math.min(18, raiu.vy));
+  }
+
   // Platform collision
   raiu.onGround = false;
   for (const p of platforms) {
@@ -1253,6 +1301,10 @@ function updateRaiu() {
     else { raiu.y = 100; raiu.vy = 0; }
   }
   if (raiu.x < 60) { raiu.x = 60; raiu.vx = 0; }
+  if (phase === 'rooftops' && raiu.x + raiu.w > tyrihWorldWidth - 30) {
+    raiu.x = tyrihWorldWidth - 30 - raiu.w;
+    raiu.vx = 0;
+  }
   if (phase === 'manorEntry' && raiu.x + raiu.w > manorEntryWorldWidth - 30) {
     raiu.x = manorEntryWorldWidth - 30 - raiu.w;
     raiu.vx = 0;
@@ -1266,6 +1318,7 @@ function updateRaiu() {
 function updateCamera() {
   const targetOffset = raiu.x - W * 0.35;
   let maxOffset = Number.POSITIVE_INFINITY;
+  if (phase === 'rooftops') maxOffset = Math.max(0, tyrihWorldWidth - W);
   if (phase === 'manor') maxOffset = Math.max(0, manorWorldWidth - W);
   if (phase === 'manorEntry') maxOffset = Math.max(0, manorEntryWorldWidth - W);
   const clampedTarget = Math.min(maxOffset, Math.max(0, targetOffset));
@@ -1353,7 +1406,7 @@ function updateEntryGuards() {
       raiu.x + raiu.w > g.x &&
       raiu.y < g.y + g.h &&
       raiu.y + raiu.h > g.y;
-    if (overlap && !raiu.hurt) {
+    if (overlap && !raiu.hurt && entryGuardHitCooldown <= 0) {
       hurtRaiuFromEntryGuard(g);
     }
   }
@@ -1372,74 +1425,39 @@ function draw() {
 }
 
 function drawRooftopScene() {
-  // Sky gradient
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#010408');
-  sky.addColorStop(0.4, '#030912');
-  sky.addColorStop(0.7, '#060d1e');
-  sky.addColorStop(1, '#0a1228');
-  ctx.fillStyle = sky;
+  ctx.fillStyle = '#020407';
   ctx.fillRect(0, 0, W, H);
 
-  // Moon
-  const moonX = W * 0.78, moonY = H * 0.14;
-  const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, 120);
-  moonGlow.addColorStop(0, 'rgba(200,210,230,0.12)');
-  moonGlow.addColorStop(1, 'transparent');
-  ctx.fillStyle = moonGlow;
-  ctx.fillRect(0, 0, W, H);
-  ctx.beginPath();
-  ctx.arc(moonX, moonY, 36, 0, Math.PI * 2);
-  ctx.fillStyle = '#c8d4e8';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(moonX, moonY, 34, 0, Math.PI * 2);
-  const moonFace = ctx.createRadialGradient(moonX - 8, moonY - 8, 0, moonX, moonY, 34);
-  moonFace.addColorStop(0, '#e8eef8');
-  moonFace.addColorStop(1, '#b0bcd0');
-  ctx.fillStyle = moonFace;
-  ctx.fill();
-
-  // Stars
-  for (const s of stars) {
-    const sx = (s.x - worldOffset * 0.1) % W;
-    ctx.globalAlpha = s.a * (0.7 + 0.3 * Math.sin(t * 0.02 + s.x));
-    ctx.beginPath();
-    ctx.arc(sx < 0 ? sx + W : sx, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
+  const panelW = tyrihPanelWidth || W;
+  for (let i = 0; i < tyrihRooftopImages.length; i++) {
+    const img = tyrihRooftopImages[i];
+    const x = i * panelW - worldOffset;
+    if (tyrihRooftopsReady) {
+      ctx.drawImage(img, x, 0, panelW, H);
+    } else {
+      const fallback = ctx.createLinearGradient(0, 0, 0, H);
+      fallback.addColorStop(0, '#03070f');
+      fallback.addColorStop(1, '#0a1228');
+      ctx.fillStyle = fallback;
+      ctx.fillRect(x, 0, panelW, H);
+    }
   }
-  ctx.globalAlpha = 1;
 
-  // Distant city glow
-  const cityGlow = ctx.createLinearGradient(0, H * 0.55, 0, H * 0.75);
-  cityGlow.addColorStop(0, 'rgba(180,100,20,0)');
-  cityGlow.addColorStop(1, 'rgba(180,100,20,0.08)');
-  ctx.fillStyle = cityGlow;
-  ctx.fillRect(0, H * 0.55, W, H * 0.2);
+  if (DEBUG_TYRIH_COLLISIONS) {
+    for (const p of platforms) {
+      ctx.fillStyle = 'rgba(120,200,255,0.24)';
+      ctx.fillRect(p.x - worldOffset, p.y, p.w, p.h);
+    }
+  }
 
-  // Far background buildings (parallax 1)
-  drawBgBuildings(0.15);
-
-  // Lanterns (behind roofs)
-  drawLanterns(false);
-
-  // Rooftops (parallax 0.5 + main)
-  drawRoofPlatforms();
-
-  // Lanterns (in front)
-  drawLanterns(true);
-
-  // Raiu
+  drawGrappleCues();
+  drawGrappleRope();
   drawRaiu();
-
-  // Particles
   drawParticles();
 
-  // Foreground vignette
   const vig = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.9);
   vig.addColorStop(0, 'transparent');
-  vig.addColorStop(1, 'rgba(0,0,0,0.5)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.38)');
   ctx.fillStyle = vig;
   ctx.fillRect(0, 0, W, H);
 }
@@ -2240,8 +2258,8 @@ for (let i = 0; i < 18; i++) {
 }
 
 // Position Raiu on first rooftop
-raiu.x = 150;
-raiu.y = H * 0.72 - 80 - raiu.h;
+raiu.x = tyrihPanelWidth * 0.05;
+raiu.y = H * 0.28 - raiu.h;
 
 // Show opening narrative, or jump directly to a prototype phase for checks.
 const startPhase = new URLSearchParams(window.location.search).get('start');

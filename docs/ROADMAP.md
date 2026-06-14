@@ -69,7 +69,7 @@ Commits de reference:
 
 Le prototype contient deja:
 
-- une scene de toits de Tyrih generee en canvas;
+- une scene de toits de Tyrih basee sur deux backgrounds peints;
 - une transition vers le manoir;
 - une phase `manorEntry` avant le manoir existant;
 - une phase manoir/fight;
@@ -79,6 +79,7 @@ Le prototype contient deja:
 - attaque;
 - garde avec etats simples;
 - musique `lantern-debt.mp3`;
+- musique Tyrih `tyrih-lantern-debt.mp3`;
 - mode de test direct du manoir via `?start=manor`;
 - background peint `assets/manor-bg.png` integre dans le manoir;
 - backgrounds `assets/manor-entry-01.png` et `assets/manor-entry-02.png`;
@@ -87,6 +88,7 @@ Le prototype contient deja:
 - grappin prototype sur touche `E`;
 - gardes simples dans l'entree du manoir;
 - checkpoints simples dans `manorEntry`.
+- backgrounds `assets/tyrih-rooftop-01-slums.png` et `assets/tyrih-rooftop-02-market.png`.
 
 ## Chantiers ouverts
 
@@ -114,6 +116,23 @@ docs/CHANTIER_001_MANOIR_ENTRY.md
 
 Priorite: haute.
 
+### Chantier 1B - Tyrih toits
+
+Objectif: remplacer les toits proceduraux par une sequence peinte en sections.
+
+Voir:
+
+```text
+docs/CHANTIER_002_TYRIH_TOITS.md
+```
+
+Etat actuel:
+
+- Section 1 integree;
+- Section 2 integree;
+- collisions invisibles prototype;
+- transition vers `manorEntry`.
+
 ### Chantier 2 - Asset pipeline
 
 Objectif: produire les images une par une et les integrer proprement.
@@ -133,8 +152,10 @@ Assets deja presents:
 - garde idle back;
 - garde attack;
 - musique `lantern-debt.mp3`;
+- musique Tyrih `tyrih-lantern-debt.mp3`;
 - background manoir `manor-bg.png`.
 - backgrounds entree manoir `manor-entry-01.png` et `manor-entry-02.png`.
+- backgrounds Tyrih `tyrih-rooftop-01-slums.png` et `tyrih-rooftop-02-market.png`.
 
 Assets a produire ensuite:
 

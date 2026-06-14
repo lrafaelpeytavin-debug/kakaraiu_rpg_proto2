@@ -2,6 +2,18 @@
 
 ## Non publie
 
+- Ajout du chantier `CHANTIER_002_TYRIH_TOITS.md`.
+- Ajout des backgrounds peints Tyrih:
+  - `assets/tyrih-rooftop-01-slums.png`;
+  - `assets/tyrih-rooftop-02-market.png`.
+- Remplacement du rendu procedural des toits par les deux sections peintes.
+- Ajout de collisions invisibles prototype pour Section 1 et Section 2.
+- Transition `rooftops -> manorEntry` recalee a la fin de la Section 2.
+- Ajout de la musique Tyrih `assets/tyrih-lantern-debt.mp3`.
+- Correction de la propulsion garde dans `manorEntry`:
+  - cooldown de hit;
+  - vitesse plafonnee;
+  - transition vers le manoir bloquee pendant un choc.
 - Correction de l'ordre des backgrounds `manorEntry`:
   - `manor-entry-01.png` = entree par la fenetre haute gauche;
   - `manor-entry-02.png` = seconde salle plus dense.

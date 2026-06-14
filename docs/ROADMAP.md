@@ -1,149 +1,198 @@
-# KAKARAIU RPG Proto 2 — Roadmap vivante
+# KAKARAIU RPG Proto 2 - Roadmap vivante
 
 Ce document sert de fil de suivi pour le prototype `kakaraiu_rpg_proto2`.
 
-Le dépôt actuel est un laboratoire HTML/canvas autonome. Il ne s’agit pas encore d’un projet RPG Maker. L’objectif est de tester rapidement le feeling des scènes spéciales de KAKA RAIU — déplacement, saut, chi, combat, garde, décor, rythme — avant de porter les séquences validées dans RPG Maker via plugins JavaScript ou scènes séparées.
+Le depot actuel est un laboratoire HTML/canvas autonome. Ce n'est pas encore un projet RPG Maker. L'objectif est de tester rapidement le feeling des scenes speciales de KAKA RAIU: deplacement, saut, chi, combat, garde, decor, rythme, chute et checkpoints. Les sequences validees pourront ensuite etre portees dans RPG Maker via plugins JavaScript ou scenes separees.
 
 ## Vision de workflow
 
-RPG Maker reste pensé comme socle roman/RPG : maps, dialogues, events, menus, inventaire, rythme narratif et mise en scène principale.
+RPG Maker reste le socle roman/RPG:
 
-Le prototype HTML/canvas sert de laboratoire gameplay : scènes plateforme, combat léger, chi, infiltration, fuite, prototypes visuels, timings et sensations de contrôle.
+- maps;
+- dialogues;
+- events;
+- menus;
+- inventaire;
+- rythme narratif;
+- mise en scene principale.
 
-Les IA de génération et d’assistance interviennent selon plusieurs rôles : génération d’assets, prompts visuels, variantes de design, avis de game design, refactor de code, documentation et suivi.
+Le prototype HTML/canvas sert de laboratoire gameplay:
 
-Le repo GitHub devient le point commun : toute personne ou IA qui arrive sur le projet doit pouvoir comprendre l’état actuel, les chantiers ouverts et les décisions prises.
+- scenes plateforme;
+- combat leger;
+- chi;
+- infiltration;
+- fuite;
+- prototypes visuels;
+- timings et sensations de controle.
 
-## État actuel du prototype
+Le repo GitHub est le point commun entre Codex, Claude, GPT et le travail manuel. Toute personne ou IA qui arrive sur le projet doit comprendre l'etat actuel, les chantiers ouverts et les decisions prises.
 
-Commit initial de référence : `f2e0b16 Initial KAKARAIU RPG proto2`.
+## Repartition du travail IA
 
-Fichiers principaux actuellement repérés :
+Codex:
 
-- `index.html` : prototype complet HTML/canvas, avec gameplay, UI, phases, dessin procédural et chargement des assets.
-- `server.mjs` : serveur local de test.
-- `package.json` : scripts de lancement.
-- `assets/` : sprites Raiu, garde et musique.
+- gameplay;
+- `index.html`;
+- integration des assets;
+- collisions;
+- camera;
+- combat;
+- commits/push GitHub.
 
-Le prototype contient déjà :
+Claude:
 
-- une scène de toits de Tyrih générée en canvas ;
-- une transition vers le manoir ;
-- une phase manoir/fight ;
-- Raiu jouable ;
-- jauge de chi d’allègement ;
-- renforcement au chi ;
-- attaque ;
-- garde avec états simples ;
-- musique `lantern-debt.mp3` ;
-- mode de test direct du manoir via `?start=manor`.
+- documentation;
+- chantiers;
+- art bible;
+- lore bible;
+- prompts;
+- organisation des assets.
+
+GPT:
+
+- idees visuelles;
+- prompts image;
+- direction artistique;
+- generation d'assets;
+- avis de game design.
+
+Regle importante: eviter que deux assistants modifient `index.html` en meme temps. Si Claude travaille en local sans GitHub, il doit de preference rester dans `docs/`, puis Codex verifie, commit et push.
+
+## Etat actuel du prototype
+
+Commits de reference:
+
+- `f2e0b16` - Initial KAKARAIU RPG proto2
+- `eac66e4` - Add living roadmap for KAKARAIU proto workflow
+- `fb508c3` - Integrate painted scrolling manor background
+
+Le prototype contient deja:
+
+- une scene de toits de Tyrih generee en canvas;
+- une transition vers le manoir;
+- une phase manoir/fight;
+- Raiu jouable;
+- jauge de chi d'allegement;
+- renforcement au chi;
+- attaque;
+- garde avec etats simples;
+- musique `lantern-debt.mp3`;
+- mode de test direct du manoir via `?start=manor`;
+- background peint `assets/manor-bg.png` integre dans le manoir;
+- camera horizontale scrollable dans le manoir.
 
 ## Chantiers ouverts
 
-### Chantier 1 — Manoir jouable
+### Chantier 1 - Manoir jouable
 
-Objectif : transformer la phase manoir actuelle en vraie scène 2.5D atmosphérique.
+Objectif: transformer la phase manoir en vraie scene 2.5D atmospherique, lisible et jouable.
 
-État actuel : le gameplay existe, mais le décor est encore dessiné par code avec rectangles, gradients, colonnes et plateformes placeholders.
+Voir:
 
-À faire :
+```text
+docs/CHANTIER_001_MANOIR.md
+```
 
-- générer `assets/manor-bg.png` comme décor plein écran ou large scrolling horizontal ;
-- générer `assets/manor-platform.png` en PNG alpha ;
-- générer `assets/manor-door.png` ;
-- générer `assets/manor-window.png` ;
-- générer `assets/manor-chest.png` ;
-- adapter `drawManorScene()` pour afficher ces assets ;
-- garder les collisions actuelles basées sur `platforms` ;
-- ajouter un coffre visible à la fin du manoir ;
-- préparer plus tard une interaction simple avec le coffre.
+Priorite: haute.
 
-Priorité : haute.
+### Chantier 2 - Asset pipeline
 
-### Chantier 2 — Asset pipeline
+Objectif: produire les images une par une et les integrer proprement.
 
-Objectif : établir une méthode propre pour produire et intégrer les images.
+Regle de base:
 
-Règle de base : un asset = une génération dédiée.
+```text
+un asset = une generation dediee
+```
 
-Assets validés ou en cours :
+Assets deja presents:
 
-- Raiu idle ;
-- Raiu back / déplacement ;
-- Raiu attack ;
-- garde idle front ;
-- garde idle back ;
-- garde attack ;
-- musique `lantern-debt.mp3`.
+- Raiu idle;
+- Raiu back/deplacement;
+- Raiu attack;
+- garde idle front;
+- garde idle back;
+- garde attack;
+- musique `lantern-debt.mp3`;
+- background manoir `manor-bg.png`.
 
-Assets à produire ensuite :
+Assets a produire ensuite:
 
-- background manoir ;
-- plateformes manoir ;
-- porte ;
-- fenêtre ;
-- coffre ;
-- lanterne murale ;
-- fond Tyrih plus tard ;
-- toits peints plus tard.
+- plateformes manoir separees si necessaire;
+- porte;
+- coffre;
+- objets interactifs;
+- fond Tyrih;
+- toits peints;
+- eventuels effets de chi.
 
-### Chantier 3 — Refactor du code
+### Chantier 3 - Gameplay systemique
 
-Objectif : éviter que `index.html` devienne impossible à maintenir.
+Objectif: stabiliser les regles de base.
 
-État actuel : tout est dans un seul fichier. C’est acceptable pour le prototype initial, mais il faudra probablement découper ensuite.
+Voir:
 
-Découpage recommandé :
+```text
+docs/GAMEPLAY.md
+```
 
-- `src/core.js` : loop, canvas, resize, état global ;
-- `src/assets.js` : chargement des images et sons ;
-- `src/player.js` : logique Raiu ;
-- `src/guard.js` : logique garde ;
-- `src/scenes/rooftops.js` ;
-- `src/scenes/manor.js` ;
-- `src/ui.js` ;
+Decisions actuelles:
+
+- vie de Raiu en coeurs;
+- chi en jauge;
+- renforcement en aura/timer;
+- chute = perte de vie + retour checkpoint;
+- mort = respawn narratif, pas game over brutal.
+
+### Chantier 4 - Refactor du code
+
+Objectif: eviter que `index.html` devienne impossible a maintenir.
+
+Decoupage recommande plus tard:
+
+- `src/core.js`;
+- `src/assets.js`;
+- `src/player.js`;
+- `src/guard.js`;
+- `src/scenes/rooftops.js`;
+- `src/scenes/manor.js`;
+- `src/ui.js`;
 - `src/narrative.js`.
 
-Priorité : moyenne. Ne pas refactorer trop tôt avant stabilisation du manoir.
+Priorite: moyenne. Ne pas refactorer trop tot avant stabilisation du manoir.
 
-### Chantier 4 — Portage RPG Maker futur
+### Chantier 5 - Portage RPG Maker futur
 
-Objectif : porter les scènes spéciales validées dans RPG Maker plus tard, sans casser le RPG principal.
+Objectif: porter les scenes speciales validees dans RPG Maker plus tard, sans casser le RPG principal.
 
-Principe : RPG Maker porte la narration, les maps, les dialogues et les menus. Les phases plateforme/combat deviennent des scènes spéciales appelées depuis un event ou un plugin JS.
+Principe: RPG Maker porte la narration, les maps, les dialogues et les menus. Les phases plateforme/combat deviennent des scenes speciales appelees depuis un event ou un plugin JS.
 
-Plugin futur possible :
+Plugin futur possible:
 
-- `js/plugins/KakaRaiu_PlatformScene.js`
+```text
+js/plugins/KakaRaiu_PlatformScene.js
+```
 
-À ne pas faire maintenant : transformer le repo actuel en RPG Maker.
+Ne pas faire maintenant: transformer le repo actuel en projet RPG Maker.
 
-## Décisions validées
+## Decisions validees
 
 - Le repo actuel reste un laboratoire HTML/canvas.
-- Le manoir est la première scène à stabiliser avant Tyrih.
-- Le procédural pur doit devenir semi-procédural : code pour placer, images peintes pour incarner.
-- Les assets doivent être produits un par un, avec dimensions raisonnables et fonds alpha quand nécessaire.
-- Les scènes validées pourront plus tard être portées dans RPG Maker.
+- Le manoir est la premiere scene a stabiliser avant Tyrih.
+- Le procedurale pur doit devenir semi-procedural: code pour placer, images peintes pour incarner.
+- Le niveau peut etre construit avec un grand background scrolling, ou avec plusieurs sections peintes assemblees.
+- Les collisions restent codees/invisibles au debut.
+- La vie de Raiu sera representee par des coeurs.
+- Le chi reste une jauge.
+- Les scenes validees pourront etre portees dans RPG Maker plus tard.
 
-## Prochaine action recommandée
+## Prochaine action recommandee
 
-Produire le background du manoir en 2.5D, puis préparer le code pour le charger avec fallback procédural si l’image manque.
+Stabiliser le manoir:
 
-Nom recommandé :
-
-```text
-assets/manor-bg.png
-```
-
-Format recommandé :
-
-```text
-2560x1440 ou 1920x1080
-fond non alpha
-ambiance sombre
-manoir ancien
-profondeur horizontale
-lisibilité gameplay
-zones basses assez calmes pour plateformes et personnages
-```
+1. corriger les limites de niveau et la chute;
+2. ajouter les coeurs de vie de Raiu;
+3. ajouter un checkpoint de respawn;
+4. placer un objectif visible: coffre, porte ou broche;
+5. ajuster les collisions invisibles sur `manor-bg.png`.

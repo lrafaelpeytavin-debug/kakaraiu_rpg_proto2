@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>KAKARAIU — Chapitre I : Les Lanternes de Tyrih</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: 'Georgia', serif; }
+  canvas { display: block; }
+  #ui {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #chi-bar-container {
+    position: fixed;
+    bottom: 24px; left: 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  #chi-label {
+    color: #c8a96e;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+  #chi-bar-bg {
+    width: 200px; height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    border: 1px solid rgba(200,169,110,0.2);
+  }
+  #chi-bar {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, #c8a96e, #fff8e0);
+    border-radius: 3px;
+    transition: width 0.1s;
+    box-shadow: 0 0 8px #c8a96e88;
+  }
+  #renforcement-bar-bg {
+    width: 200px; height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    border: 1px solid rgba(255,120,60,0.2);
+  }
+  #renforcement-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #ff6a2a, #ffcc44);
+    border-radius: 3px;
+    transition: width 0.05s;
+    box-shadow: 0 0 8px #ff6a2a88;
+  }
+  #renforcement-label {
+    color: #ff9955;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #controls {
+    position: fixed;
+    bottom: 92px; left: 32px;
+    display: flex; gap: 14px;
+    flex-wrap: wrap;
+    max-width: min(560px, calc(100vw - 250px));
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .ctrl { display: flex; align-items: center; gap: 6px; }
+  .key {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+  }
+  #narrative {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.85);
+    opacity: 0;
+    transition: opacity 0.8s;
+    pointer-events: none;
+    z-index: 20;
+  }
+  #narrative.visible { opacity: 1; pointer-events: all; }
+  #narrative-box {
+    max-width: 560px;
+    border: 1px solid rgba(200,169,110,0.25);
+    background: rgba(4,8,20,0.95);
+    padding: 40px 48px;
+    position: relative;
+  }
+  #narrative-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 40px; right: 40px; height: 1px;
+    background: linear-gradient(90deg, transparent, #c8a96e, transparent);
+  }
+  #narrative-box::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 40px; right: 40px; height: 1px;
+    background: linear-gradient(90deg, transparent, #c8a96e, transparent);
+  }
+  #narrative-title {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #c8a96e;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  #narrative-text {
+    font-size: 15px;
+    line-height: 1.9;
+    color: rgba(220,215,205,0.9);
+    font-style: italic;
+  }
+  #narrative-continue {
+    margin-top: 28px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(200,169,110,0.5);
+    text-align: right;
+    text-transform: uppercase;
+    cursor: pointer;
+    pointer-events: all;
+    transition: color 0.2s;
+  }
+  #narrative-continue:hover { color: #c8a96e; }
+  #scene-title {
+    position: fixed;
+    top: 32px; left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1.5s;
+  }
+  #scene-title.visible { opacity: 1; }
+  #scene-title h1 {
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: #c8a96e;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+  #scene-title h2 {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-weight: normal;
+  }
+  #flash {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 30;
+  }
+  #guard-health {
+    position: fixed;
+    top: 32px; right: 40px;
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+  }
+  #guard-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255,80,80,0.6);
+    text-transform: uppercase;
+  }
+  #guard-bar-bg {
+    width: 120px; height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+  }
+  #guard-bar {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, #cc3333, #ff6666);
+    border-radius: 2px;
+    transition: width 0.2s;
+  }
+  #phase-indicator {
+    position: fixed;
+    top: 32px; left: 40px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(200,169,110,0.4);
+    text-transform: uppercase;
+  }
+  #action-buttons {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+  }
+  .action-btn {
+    min-width: 82px;
+    height: 44px;
+    border: 1px solid rgba(200,169,110,0.35);
+    background: rgba(6,10,18,0.82);
+    color: rgba(255,245,220,0.85);
+    border-radius: 6px;
+    font: 10px Georgia, serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(0,0,0,0.45);
+  }
+  .action-btn:active {
+    border-color: rgba(255,210,120,0.8);
+    color: #fff4d0;
+    background: rgba(24,18,10,0.92);
+  }
+  #audio-toggle {
+    position: fixed;
+    right: 32px;
+    top: 82px;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <div id="scene-title">
+    <h1>Kakaraiu</h1>
+    <h2>Chapitre I — Les Lanternes de Tyrih</h2>
+  </div>
+  <div id="phase-indicator">— Les Toits —</div>
+  <div id="guard-health">
+    <div id="guard-label">Garde</div>
+    <div id="guard-bar-bg"><div id="guard-bar"></div></div>
+  </div>
+  <div id="chi-bar-container">
+    <div id="renforcement-label">✦ Renforcement ✦</div>
+    <div id="renforcement-bar-bg"><div id="renforcement-bar"></div></div>
+    <div id="chi-label">Chi d'Allègement</div>
+    <div id="chi-bar-bg"><div id="chi-bar"></div></div>
+  </div>
+  <div id="controls">
+    <div class="ctrl"><span class="key">←→</span> Courir</div>
+    <div class="ctrl"><span class="key">Espace</span> Sauter / Chi allègement</div>
+    <div class="ctrl"><span class="key">Shift</span> Chi renforcement</div>
+    <div class="ctrl"><span class="key">F</span> Frapper</div>
+  </div>
+  <button class="action-btn" id="audio-toggle" type="button">Musique</button>
+  <div id="action-buttons">
+    <button class="action-btn" id="reinforce-button" type="button">Chi</button>
+    <button class="action-btn" id="attack-button" type="button">Frapper</button>
+  </div>
+</div>
+<div id="narrative">
+  <div id="narrative-box">
+    <div id="narrative-title">— Tyrih, Nuit du Nouvel An —</div>
+    <div id="narrative-text"></div>
+    <div id="narrative-continue">Continuer →</div>
+  </div>
+</div>
+<div id="flash"></div>
+<audio id="music" src="assets/lantern-debt.mp3" loop preload="auto"></audio>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─── PALETTE ───────────────────────────────────────────────
+const PAL = {
+  sky_deep:   '#03070f',
+  sky_mid:    '#060d1e',
+  sky_glow:   '#0a1228',
+  roof_dark:  '#0d1117',
+  roof_mid:   '#151c28',
+  roof_light: '#1e2738',
+  roof_edge:  '#242f44',
+  lantern_r:  '#cc2211',
+  lantern_g:  '#d4430a',
+  lantern_glow:'#ff6633',
+  gold:       '#c8a96e',
+  gold_bright:'#ffe8a0',
+  chi_blue:   '#4488ff',
+  chi_white:  '#ddeeff',
+  reinforce:  '#ff7722',
+  reinforce2: '#ffcc44',
+  blood_red:  '#8b1a1a',
+};
+
+const raiuImages = {
+  idle: new Image(),
+  back: new Image(),
+  attack: new Image(),
+};
+raiuImages.idle.src = 'assets/raiu-idle.png';
+raiuImages.back.src = 'assets/raiu-back.png';
+raiuImages.attack.src = 'assets/raiu-attack.png';
+let raiuSpriteReady = false;
+let loadedRaiuImages = 0;
+Object.values(raiuImages).forEach((img) => {
+  img.addEventListener('load', () => {
+    loadedRaiuImages++;
+    raiuSpriteReady = loadedRaiuImages === Object.keys(raiuImages).length;
+  });
+});
+const RAIU_SPRITES = {
+  idle:   { img: raiuImages.idle, dw: 78,  dh: 126, ox: 0 },
+  back:   { img: raiuImages.back, dw: 80,  dh: 126, ox: 0 },
+  attack: { img: raiuImages.attack, dw: 154, dh: 126, ox: 34 },
+};
+
+const guardImages = {
+  front: new Image(),
+  back: new Image(),
+  attack: new Image(),
+};
+guardImages.front.src = 'assets/guard-idle-front.png';
+guardImages.back.src = 'assets/guard-idle-back.png';
+guardImages.attack.src = 'assets/guard-attack.png';
+let guardSpriteReady = false;
+let loadedGuardImages = 0;
+Object.values(guardImages).forEach((img) => {
+  img.addEventListener('load', () => {
+    loadedGuardImages++;
+    guardSpriteReady = loadedGuardImages === Object.keys(guardImages).length;
+  });
+});
+const GUARD_SPRITES = {
+  front:  { img: guardImages.front,  dw: 118, dh: 158 },
+  back:   { img: guardImages.back,   dw: 118, dh: 158 },
+  attack: { img: guardImages.attack, dw: 248, dh: 150 },
+};
+
+// ─── STATE ─────────────────────────────────────────────────
+let phase = 'rooftops'; // rooftops | manor | fight | escape
+let t = 0;
+
+// ─── NARRATIVE SYSTEM ──────────────────────────────────────
+const narrativeQueue = [
+  {
+    title: '— Tyrih, Nuit du Nouvel An —',
+    text: 'La cité célèbre l\'ère des Dragons Émeraude. Les rues débordent de fumée parfumée, de pétards et de foules compactes. Raiu bondit de toit en toit, son grappin contre la hanche, une excitation fébrile dans le ventre.',
+    onClose: () => { sceneTitle.classList.add('visible'); gameActive = true; }
+  },
+];
+let narrativeIndex = 0;
+let gameActive = false;
+
+const narrative = document.getElementById('narrative');
+const narrativeText = document.getElementById('narrative-text');
+const narrativeTitleEl = document.getElementById('narrative-title');
+const narrativeContinue = document.getElementById('narrative-continue');
+const sceneTitle = document.getElementById('scene-title');
+const phaseIndicator = document.getElementById('phase-indicator');
+
+function showNarrative(idx) {
+  const n = narrativeQueue[idx];
+  if (!n) return;
+  narrativeTitleEl.textContent = n.title;
+  narrativeText.textContent = n.text;
+  narrative.classList.add('visible');
+  gameActive = false;
+}
+
+narrativeContinue.addEventListener('click', () => {
+  const n = narrativeQueue[narrativeIndex];
+  if (n && n.onClose) n.onClose();
+  narrative.classList.remove('visible');
+  narrativeIndex++;
+  if (narrativeIndex < narrativeQueue.length) {
+    setTimeout(() => showNarrative(narrativeIndex), 400);
+  }
+});
+
+// ─── WORLD / PLATFORMS ─────────────────────────────────────
+// Platforms: { x, y, w, h, type }
+// type: roof | manor_floor | manor_wall
+let platforms = [];
+let worldOffset = 0;
+let worldSpeed = 0;
+
+function generateRooftops() {
+  platforms = [];
+  let x = -200;
+  const baseY = H * 0.72;
+  // Ground
+  platforms.push({ x: -500, y: baseY + 160, w: 99999, h: 40, type: 'ground' });
+
+  const roofConfigs = [
+    { w: 180, h: 30, gap: 60,  dy: 0   },
+    { w: 120, h: 25, gap: 80,  dy: -40 },
+    { w: 200, h: 35, gap: 50,  dy: 20  },
+    { w: 150, h: 28, gap: 90,  dy: -60 },
+    { w: 100, h: 22, gap: 70,  dy: -30 },
+    { w: 220, h: 40, gap: 40,  dy: 10  },
+    { w: 130, h: 26, gap: 100, dy: -50 },
+    { w: 160, h: 32, gap: 60,  dy: 30  },
+  ];
+
+  let i = 0;
+  while (x < W * 6) {
+    const c = roofConfigs[i % roofConfigs.length];
+    const y = baseY + c.dy + Math.sin(x * 0.003) * 20;
+    platforms.push({ x, y, w: c.w, h: c.h, type: 'roof', ridgeH: c.h * 0.4 });
+    x += c.w + c.gap;
+    i++;
+  }
+}
+
+// ─── LANTERNS ──────────────────────────────────────────────
+let lanterns = [];
+function generateLanterns() {
+  lanterns = [];
+  for (let i = 0; i < 60; i++) {
+    lanterns.push({
+      x: Math.random() * W * 7 - 200,
+      y: H * 0.05 + Math.random() * H * 0.5,
+      size: 8 + Math.random() * 14,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.2 + Math.random() * 0.4,
+      drift: (Math.random() - 0.5) * 0.3,
+      type: Math.random() > 0.3 ? 'red' : 'gold',
+    });
+  }
+}
+
+// ─── STARS ─────────────────────────────────────────────────
+let stars = [];
+function generateStars() {
+  stars = [];
+  for (let i = 0; i < 180; i++) {
+    stars.push({
+      x: Math.random() * W * 2,
+      y: Math.random() * H * 0.6,
+      r: Math.random() * 1.2,
+      a: 0.3 + Math.random() * 0.7,
+    });
+  }
+}
+
+// ─── PARTICLES ─────────────────────────────────────────────
+let particles = [];
+function spawnParticle(x, y, type) {
+  for (let i = 0; i < (type === 'chi' ? 8 : type === 'reinforce' ? 12 : 5); i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 3;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - (type === 'chi' ? 2 : 0),
+      life: 1,
+      decay: 0.04 + Math.random() * 0.04,
+      size: type === 'reinforce' ? 4 + Math.random() * 6 : 2 + Math.random() * 4,
+      type,
+    });
+  }
+}
+
+// ─── RAIU ──────────────────────────────────────────────────
+const raiu = {
+  x: 200, y: 300,
+  vx: 0, vy: 0,
+  w: 34, h: 82,
+  onGround: false,
+  facing: 1,
+  state: 'idle', // idle|run|jump|fall|attack|hurt|reinforce
+  stateTimer: 0,
+  // Chi
+  chi: 1.0,
+  chiMax: 1.0,
+  chiRegen: 0.003,
+  chiJumpCost: 0.18,
+  chiJumpActive: false,
+  chiJumpTimer: 0,
+  // Renforcement
+  reinforce: 0,
+  reinforceActive: false,
+  reinforceTimer: 0,
+  reinforceCost: 0.5,
+  // Combat
+  attacking: false,
+  attackTimer: 0,
+  attackCooldown: 0,
+  hurt: false,
+  hurtTimer: 0,
+  // Animation
+  animFrame: 0,
+  animTimer: 0,
+  capePhase: 0,
+};
+
+// ─── GUARD ─────────────────────────────────────────────────
+const guard = {
+  x: 0, y: 0,
+  w: 48, h: 96,
+  hp: 100,
+  maxHp: 100,
+  state: 'patrol', // patrol|alert|attack|hurt|dead
+  stateTimer: 0,
+  facing: -1,
+  vx: 0,
+  active: false,
+  alertTimer: 0,
+  attackCooldown: 0,
+};
+
+// ─── KEYS ──────────────────────────────────────────────────
+const keys = {};
+let queuedAttack = false;
+let queuedReinforce = false;
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Space') e.preventDefault();
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+const attackButton = document.getElementById('attack-button');
+const reinforceButton = document.getElementById('reinforce-button');
+const audioToggle = document.getElementById('audio-toggle');
+const music = document.getElementById('music');
+attackButton.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  queuedAttack = true;
+});
+reinforceButton.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  queuedReinforce = true;
+});
+audioToggle.addEventListener('click', async (e) => {
+  e.preventDefault();
+  try {
+    if (music.paused) {
+      music.volume = 0.42;
+      await music.play();
+      audioToggle.textContent = 'Pause';
+    } else {
+      music.pause();
+      audioToggle.textContent = 'Musique';
+    }
+  } catch {
+    audioToggle.textContent = 'Clique encore';
+  }
+});
+
+// ─── PHYSICS ───────────────────────────────────────────────
+const GRAVITY = 0.45;
+const JUMP_FORCE = -11;
+const CHI_JUMP_BOOST = -3.5;
+const MOVE_SPEED = 4.2;
+const CHI_FLOAT = 0.18; // gravity reduction when chi jump
+
+function getPlatformBelow(rx, ry, rw, rh) {
+  let best = null;
+  for (const p of platforms) {
+    const px = p.x;
+    if (rx + rw > px && rx < px + p.w) {
+      if (ry + rh <= p.y + 4 && ry + rh >= p.y - 12) {
+        if (!best || p.y < best.y) best = p;
+      }
+    }
+  }
+  return best;
+}
+
+function isOnPlatform(rx, ry, rw, rh) {
+  for (const p of platforms) {
+    const px = p.x;
+    if (rx + rw > px + 2 && rx < px + p.w - 2) {
+      if (ry + rh >= p.y && ry + rh <= p.y + 10 && raiu.vy >= 0) {
+        return p;
+      }
+    }
+  }
+  return null;
+}
+
+// ─── FLASH ─────────────────────────────────────────────────
+const flashEl = document.getElementById('flash');
+function triggerFlash(color, duration) {
+  flashEl.style.background = color;
+  flashEl.style.opacity = '0.5';
+  flashEl.style.transition = 'none';
+  setTimeout(() => {
+    flashEl.style.transition = `opacity ${duration}ms`;
+    flashEl.style.opacity = '0';
+  }, 30);
+}
+
+// ─── GUARD HP UI ───────────────────────────────────────────
+const guardHealthEl = document.getElementById('guard-health');
+const guardBarEl = document.getElementById('guard-bar');
+function updateGuardUI() {
+  if (phase === 'fight') {
+    guardHealthEl.style.display = 'flex';
+    guardBarEl.style.width = (guard.hp / guard.maxHp * 100) + '%';
+  } else {
+    guardHealthEl.style.display = 'none';
+  }
+}
+
+// ─── CHI UI ────────────────────────────────────────────────
+const chiBarEl = document.getElementById('chi-bar');
+const reinforceBarEl = document.getElementById('renforcement-bar');
+const reinforceLabelEl = document.getElementById('renforcement-label');
+function updateChiUI() {
+  chiBarEl.style.width = (raiu.chi / raiu.chiMax * 100) + '%';
+  if (raiu.reinforceActive) {
+    reinforceBarEl.style.width = Math.min(100, raiu.reinforceTimer / 210 * 100) + '%';
+    reinforceLabelEl.style.opacity = '0.9';
+  } else {
+    reinforceBarEl.style.width = '0%';
+    reinforceLabelEl.style.opacity = '0';
+  }
+}
+
+// ─── PHASE TRANSITIONS ─────────────────────────────────────
+let phaseTransitionTimer = 0;
+let manorSetup = false;
+
+function enterManorPhase() {
+  phase = 'manor';
+  phaseIndicator.textContent = '— Le Manoir —';
+  // Reset world for manor
+  worldOffset = 0;
+  platforms = [];
+  // Manor floor
+  platforms.push({ x: -500, y: H * 0.78, w: 99999, h: 40, type: 'ground' });
+  // Some elevated platforms inside manor
+  platforms.push({ x: 300, y: H * 0.62, w: 120, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 600, y: H * 0.55, w: 80, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 900, y: H * 0.65, w: 140, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 1200, y: H * 0.58, w: 160, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 1510, y: H * 0.68, w: 150, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 1800, y: H * 0.57, w: 180, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 2140, y: H * 0.63, w: 130, h: 20, type: 'manor_ledge' });
+  platforms.push({ x: 2460, y: H * 0.52, w: 190, h: 20, type: 'manor_ledge' });
+
+  raiu.x = 120;
+  raiu.y = H * 0.78 - raiu.h;
+  raiu.vx = 0; raiu.vy = 0;
+
+  // Setup guard
+  guard.x = 650;
+  guard.y = H * 0.78 - guard.h;
+  guard.hp = guard.maxHp;
+  guard.state = 'patrol';
+  guard.active = true;
+  guard.facing = -1;
+
+  showNarrative2({
+    title: '— À l\'intérieur du Manoir —',
+    text: 'L\'air est lourd, presque mortifère. Quelque chose de froid suinte des murs. Raiu avance, sa cape absorbant ses mouvements. La broche est quelque part dans ces salles...',
+    onClose: () => { gameActive = true; phase = 'fight'; updateGuardUI(); }
+  });
+}
+
+function showNarrative2(n) {
+  gameActive = false;
+  narrativeTitleEl.textContent = n.title;
+  narrativeText.textContent = n.text;
+  narrative.classList.add('visible');
+  narrativeContinue.onclick = () => {
+    narrative.classList.remove('visible');
+    if (n.onClose) setTimeout(n.onClose, 400);
+    narrativeContinue.onclick = () => {
+      narrative.classList.remove('visible');
+      narrativeIndex++;
+    };
+  };
+}
+
+// ─── UPDATE ────────────────────────────────────────────────
+let manorTriggerFired = false;
+
+function update() {
+  if (!gameActive) return;
+  t++;
+
+  // Update lanterns
+  for (const l of lanterns) {
+    l.y -= l.speed * 0.3;
+    l.x += l.drift;
+    if (l.y < -30) {
+      l.y = H + 20;
+      l.x = Math.random() * W * 7 - 200;
+    }
+  }
+
+  // Update particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    p.vx *= 0.95; p.vy *= 0.95;
+    p.life -= p.decay;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  if (!gameActive) return;
+  updateRaiu();
+  if (guard.active) updateGuard();
+  updateCamera();
+  updateChiUI();
+  updateGuardUI();
+
+  // Phase trigger: reach end of rooftops
+  if (phase === 'rooftops' && !manorTriggerFired && raiu.x > W * 4.5) {
+    manorTriggerFired = true;
+    gameActive = false;
+    setTimeout(enterManorPhase, 600);
+  }
+}
+
+function activateReinforce() {
+  if (raiu.reinforceActive || raiu.chi < raiu.reinforceCost) return;
+  raiu.reinforceActive = true;
+  raiu.reinforceTimer = 210;
+  raiu.chi -= raiu.reinforceCost;
+  raiu.state = 'reinforce';
+  spawnParticle(raiu.x + raiu.w/2, raiu.y + raiu.h/2, 'reinforce');
+  triggerFlash('rgba(255,120,40,0.25)', 400);
+}
+
+function triggerAttack() {
+  if (raiu.attacking || raiu.attackCooldown > 0) return;
+  raiu.attacking = true;
+  raiu.attackTimer = raiu.reinforceActive ? 26 : 20;
+  raiu.attackCooldown = raiu.reinforceActive ? 22 : 30;
+  raiu.state = 'attack';
+
+  const slashX = raiu.x + (raiu.facing > 0 ? raiu.w + 26 : -26);
+  spawnParticle(slashX, raiu.y + raiu.h * 0.42, raiu.reinforceActive ? 'reinforce' : 'slash');
+
+  if (!guard.active || guard.hp <= 0) return;
+  const raiuCenterX = raiu.x + raiu.w * 0.5;
+  const raiuCenterY = raiu.y + raiu.h * 0.5;
+  const guardCenterX = guard.x + guard.w * 0.5;
+  const guardCenterY = guard.y + guard.h * 0.5;
+  const horizontalReach = raiu.reinforceActive ? 150 : 92;
+  const verticalReach = raiu.reinforceActive ? 105 : 82;
+  const inFront =
+    (raiu.facing > 0 && guardCenterX >= raiuCenterX - 10) ||
+    (raiu.facing < 0 && guardCenterX <= raiuCenterX + 10);
+
+  if (inFront && Math.abs(guardCenterX - raiuCenterX) < horizontalReach && Math.abs(guardCenterY - raiuCenterY) < verticalReach) {
+    const dmg = raiu.reinforceActive ? 42 : 18;
+    guard.hp = Math.max(0, guard.hp - dmg);
+    guard.state = 'hurt'; guard.stateTimer = 0;
+    guard.vx = raiu.facing * (raiu.reinforceActive ? 9 : 5);
+    triggerFlash(raiu.reinforceActive ? 'rgba(255,120,0,0.3)' : 'rgba(255,255,255,0.15)', 200);
+    if (guard.hp <= 0) {
+      guard.state = 'dead';
+      setTimeout(() => {
+        showNarrative2({
+          title: '— Victoire —',
+          text: 'Le garde s\'écrase lourdement sur les dalles. Raiu récupère la broche — un dragon d\'or dont les runes vibrent sous ses doigts. Au loin, il entend les pas de Seran. Il est temps de fuir.',
+          onClose: () => { phase = 'escape'; phaseIndicator.textContent = '— La Fuite —'; gameActive = true; }
+        });
+      }, 500);
+    }
+  }
+}
+
+function updateRaiu() {
+  // Anim
+  raiu.animTimer++;
+  raiu.capePhase += 0.08;
+  if (raiu.animTimer > 6) { raiu.animTimer = 0; raiu.animFrame = (raiu.animFrame + 1) % 4; }
+
+  // Hurt
+  if (raiu.hurt) {
+    raiu.hurtTimer--;
+    if (raiu.hurtTimer <= 0) raiu.hurt = false;
+  }
+
+  // Attack cooldown
+  if (raiu.attackCooldown > 0) raiu.attackCooldown--;
+  if (raiu.attacking) {
+    raiu.attackTimer--;
+    if (raiu.attackTimer <= 0) { raiu.attacking = false; raiu.state = 'idle'; }
+  }
+
+  // Chi regen
+  if (!raiu.chiJumpActive && !raiu.reinforceActive) {
+    raiu.chi = Math.min(raiu.chiMax, raiu.chi + raiu.chiRegen);
+  }
+
+  // Renforcement
+  if (raiu.reinforceActive) {
+    raiu.reinforceTimer--;
+    if (raiu.reinforceTimer <= 0) {
+      raiu.reinforceActive = false;
+      raiu.state = raiu.onGround ? 'idle' : 'fall';
+    }
+    // Spawn reinforce particles
+    if (t % 3 === 0) spawnParticle(raiu.x + raiu.w/2, raiu.y + raiu.h/2, 'reinforce');
+  }
+
+  // Movement
+  if (!raiu.attacking) {
+    if (keys['ArrowLeft'] || keys['KeyA']) {
+      raiu.vx = -MOVE_SPEED * (raiu.reinforceActive ? 1.12 : 1);
+      raiu.facing = -1;
+      if (raiu.onGround) raiu.state = 'run';
+    } else if (keys['ArrowRight'] || keys['KeyD']) {
+      raiu.vx = MOVE_SPEED * (raiu.reinforceActive ? 1.12 : 1);
+      raiu.facing = 1;
+      if (raiu.onGround) raiu.state = 'run';
+    } else {
+      raiu.vx *= 0.75;
+      if (raiu.onGround && Math.abs(raiu.vx) < 0.5) { raiu.vx = 0; raiu.state = 'idle'; }
+    }
+  }
+
+  // Jump / Chi allègement
+  if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW']) && raiu.onGround) {
+    raiu.vy = JUMP_FORCE;
+    raiu.onGround = false;
+    raiu.state = 'jump';
+    // Chi allègement boost
+    if (raiu.chi >= raiu.chiJumpCost) {
+      raiu.vy += CHI_JUMP_BOOST;
+      raiu.chi -= raiu.chiJumpCost;
+      raiu.chiJumpActive = true;
+      raiu.chiJumpTimer = 30;
+      spawnParticle(raiu.x + raiu.w/2, raiu.y + raiu.h, 'chi');
+      triggerFlash('rgba(100,180,255,0.15)', 300);
+    }
+  }
+
+  // Chi jump float
+  if (raiu.chiJumpActive) {
+    raiu.chiJumpTimer--;
+    if (raiu.chiJumpTimer <= 0 || !(keys['Space'] || keys['ArrowUp'] || keys['KeyW'])) {
+      raiu.chiJumpActive = false;
+    }
+  }
+
+  // Renforcement activation
+  if (keys['ShiftLeft'] || keys['ShiftRight'] || queuedReinforce) activateReinforce();
+  queuedReinforce = false;
+  if (keys['ShiftLeft'] || keys['ShiftRight']) {
+    if (!raiu.reinforceActive && raiu.chi >= raiu.reinforceCost) {
+      raiu.reinforceActive = true;
+      raiu.reinforceTimer = 180;
+      raiu.chi -= raiu.reinforceCost;
+      raiu.state = 'reinforce';
+      spawnParticle(raiu.x + raiu.w/2, raiu.y + raiu.h/2, 'reinforce');
+      triggerFlash('rgba(255,120,40,0.25)', 400);
+    }
+  }
+
+  // Attack
+  if (keys['KeyF'] || keys['KeyX'] || queuedAttack) triggerAttack();
+  queuedAttack = false;
+  if ((keys['KeyF'] || keys['KeyX']) && !raiu.attacking && raiu.attackCooldown <= 0) {
+    raiu.attacking = true;
+    raiu.attackTimer = 20;
+    raiu.attackCooldown = 30;
+    raiu.state = 'attack';
+    spawnParticle(raiu.x + (raiu.facing > 0 ? raiu.w + 10 : -10), raiu.y + raiu.h * 0.4, raiu.reinforceActive ? 'reinforce' : 'slash');
+    // Hit guard
+    if (guard.active && guard.hp > 0) {
+      const ax = raiu.x + (raiu.facing > 0 ? raiu.w : -30);
+      if (Math.abs(ax - guard.x) < 60 && Math.abs(raiu.y - guard.y) < 60) {
+        const dmg = raiu.reinforceActive ? 35 : 18;
+        guard.hp = Math.max(0, guard.hp - dmg);
+        guard.state = 'hurt'; guard.stateTimer = 25;
+        guard.vx = raiu.facing * 5;
+        triggerFlash(raiu.reinforceActive ? 'rgba(255,120,0,0.3)' : 'rgba(255,255,255,0.15)', 200);
+        if (guard.hp <= 0) {
+          guard.state = 'dead';
+          setTimeout(() => {
+            showNarrative2({
+              title: '— Victoire —',
+              text: 'Le garde s\'écrase lourdement sur les dalles. Raiu récupère la broche — un dragon d\'or dont les runes vibrent sous ses doigts. Au loin, il entend les pas de Seran. Il est temps de fuir.',
+              onClose: () => { phase = 'escape'; phaseIndicator.textContent = '— La Fuite —'; gameActive = true; }
+            });
+          }, 500);
+        }
+      }
+    }
+  }
+
+  // Gravity
+  const gravMult = raiu.chiJumpActive ? CHI_FLOAT : 1;
+  raiu.vy += GRAVITY * gravMult;
+  if (raiu.vy > 18) raiu.vy = 18;
+
+  // Move
+  raiu.x += raiu.vx;
+  raiu.y += raiu.vy;
+
+  // Platform collision
+  raiu.onGround = false;
+  for (const p of platforms) {
+    const px = p.x;
+    if (raiu.x + raiu.w > px + 2 && raiu.x < px + p.w - 2) {
+      if (raiu.vy >= 0 && raiu.y + raiu.h > p.y && raiu.y + raiu.h < p.y + 20) {
+        raiu.y = p.y - raiu.h;
+        raiu.vy = 0;
+        raiu.onGround = true;
+        if (raiu.state === 'jump' || raiu.state === 'fall') raiu.state = 'idle';
+      }
+    }
+  }
+
+  if (!raiu.onGround && raiu.vy > 1) raiu.state = 'fall';
+
+  // Clamp
+  if (raiu.y > H + 200) { raiu.y = 100; raiu.vy = 0; }
+  if (raiu.x < 60) { raiu.x = 60; raiu.vx = 0; }
+}
+
+function updateCamera() {
+  const targetOffset = raiu.x - W * 0.35;
+  worldOffset += (Math.max(0, targetOffset) - worldOffset) * 0.08;
+}
+
+function updateGuard() {
+  guard.stateTimer++;
+  if (guard.attackCooldown > 0) guard.attackCooldown--;
+
+  if (guard.state === 'dead') return;
+  if (guard.state === 'attack') {
+    if (guard.stateTimer > 22) { guard.state = 'alert'; guard.stateTimer = 0; }
+    return;
+  }
+  if (guard.state === 'hurt') {
+    guard.vx *= 0.8;
+    guard.x += guard.vx;
+    if (guard.stateTimer > 25) { guard.state = 'alert'; guard.stateTimer = 0; }
+    return;
+  }
+
+  // AI in world coordinates
+  const ddx = raiu.x - guard.x;
+  const ddist = Math.abs(ddx);
+
+  if (ddist < 200) guard.state = 'alert';
+
+  if (guard.state === 'patrol') {
+    guard.x += guard.facing * 1.2;
+    if (guard.stateTimer > 120) { guard.facing *= -1; guard.stateTimer = 0; }
+  } else if (guard.state === 'alert') {
+    guard.facing = ddx > 0 ? 1 : -1;
+    if (ddist > 50) guard.x += guard.facing * 1.8;
+    if (ddist < 55 && guard.attackCooldown <= 0) {
+      // Guard attacks
+      guard.state = 'attack';
+      guard.stateTimer = 0;
+      raiu.hurt = true; raiu.hurtTimer = 20;
+      raiu.vx = -guard.facing * 6;
+      raiu.vy = -4;
+      guard.attackCooldown = 80;
+      triggerFlash('rgba(180,40,40,0.2)', 200);
+    }
+  }
+
+  // Guard gravity
+  guard.y += 2;
+  for (const p of platforms) {
+    const px = p.x;
+    if (guard.x + guard.w > px + 2 && guard.x < px + p.w - 2) {
+      if (guard.y + guard.h > p.y && guard.y + guard.h < p.y + 20) {
+        guard.y = p.y - guard.h;
+      }
+    }
+  }
+}
+
+// ─── DRAW ──────────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  if (phase === 'rooftops') {
+    drawRooftopScene();
+  } else {
+    drawManorScene();
+  }
+}
+
+function drawRooftopScene() {
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#010408');
+  sky.addColorStop(0.4, '#030912');
+  sky.addColorStop(0.7, '#060d1e');
+  sky.addColorStop(1, '#0a1228');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // Moon
+  const moonX = W * 0.78, moonY = H * 0.14;
+  const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, 120);
+  moonGlow.addColorStop(0, 'rgba(200,210,230,0.12)');
+  moonGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = moonGlow;
+  ctx.fillRect(0, 0, W, H);
+  ctx.beginPath();
+  ctx.arc(moonX, moonY, 36, 0, Math.PI * 2);
+  ctx.fillStyle = '#c8d4e8';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(moonX, moonY, 34, 0, Math.PI * 2);
+  const moonFace = ctx.createRadialGradient(moonX - 8, moonY - 8, 0, moonX, moonY, 34);
+  moonFace.addColorStop(0, '#e8eef8');
+  moonFace.addColorStop(1, '#b0bcd0');
+  ctx.fillStyle = moonFace;
+  ctx.fill();
+
+  // Stars
+  for (const s of stars) {
+    const sx = (s.x - worldOffset * 0.1) % W;
+    ctx.globalAlpha = s.a * (0.7 + 0.3 * Math.sin(t * 0.02 + s.x));
+    ctx.beginPath();
+    ctx.arc(sx < 0 ? sx + W : sx, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Distant city glow
+  const cityGlow = ctx.createLinearGradient(0, H * 0.55, 0, H * 0.75);
+  cityGlow.addColorStop(0, 'rgba(180,100,20,0)');
+  cityGlow.addColorStop(1, 'rgba(180,100,20,0.08)');
+  ctx.fillStyle = cityGlow;
+  ctx.fillRect(0, H * 0.55, W, H * 0.2);
+
+  // Far background buildings (parallax 1)
+  drawBgBuildings(0.15);
+
+  // Lanterns (behind roofs)
+  drawLanterns(false);
+
+  // Rooftops (parallax 0.5 + main)
+  drawRoofPlatforms();
+
+  // Lanterns (in front)
+  drawLanterns(true);
+
+  // Raiu
+  drawRaiu();
+
+  // Particles
+  drawParticles();
+
+  // Foreground vignette
+  const vig = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.9);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawManorScene() {
+  // Manor interior - dark stone
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#040608');
+  bg.addColorStop(1, '#0a0d12');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stone columns
+  for (let i = 0; i < 6; i++) {
+    const cx = 120 + i * 180 - (worldOffset * 0.3) % 180;
+    // Column
+    ctx.fillStyle = '#0f1218';
+    ctx.fillRect(cx - 18, 0, 36, H * 0.8);
+    // Column highlight
+    ctx.fillStyle = '#1a1f2a';
+    ctx.fillRect(cx - 16, 0, 4, H * 0.8);
+    // Gold trim
+    ctx.fillStyle = 'rgba(200,169,110,0.15)';
+    ctx.fillRect(cx - 18, H * 0.1, 36, 2);
+    ctx.fillRect(cx - 18, H * 0.7, 36, 2);
+  }
+
+  // Window (far end, blue moonlight)
+  const wx = W * 0.85;
+  const winGlow = ctx.createRadialGradient(wx, H*0.3, 0, wx, H*0.3, 200);
+  winGlow.addColorStop(0, 'rgba(60,100,180,0.15)');
+  winGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = winGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  // Wall lantern
+  const lx = W * 0.5 - (worldOffset * 0.3);
+  const lg = ctx.createRadialGradient(lx, H * 0.18, 0, lx, H * 0.18, 120);
+  lg.addColorStop(0, 'rgba(200,140,40,0.18)');
+  lg.addColorStop(1, 'transparent');
+  ctx.fillStyle = lg;
+  ctx.fillRect(0, 0, W, H);
+  // Lantern body
+  ctx.fillStyle = '#c8a96e';
+  ctx.fillRect(lx - 6, H * 0.13, 12, 16);
+  ctx.fillStyle = 'rgba(255,200,80,0.8)';
+  ctx.fillRect(lx - 4, H * 0.14, 8, 12);
+
+  // Floor
+  ctx.fillStyle = '#0c1018';
+  ctx.fillRect(0, H * 0.78, W, H * 0.22);
+  // Floor reflection
+  for (let i = 0; i < W; i += 40) {
+    const x = i - (worldOffset * 0.3 % 40);
+    ctx.strokeStyle = 'rgba(200,169,110,0.04)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, H * 0.78);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+
+  // Manor platforms
+  for (const p of platforms) {
+    if (p.type === 'ground') continue;
+    const px = p.x - worldOffset;
+    ctx.fillStyle = '#151c28';
+    ctx.fillRect(px, p.y, p.w, p.h);
+    ctx.fillStyle = '#1e2a3a';
+    ctx.fillRect(px, p.y, p.w, 3);
+  }
+
+  // Lanterns (manor)
+  for (const l of lanterns) {
+    if (!l.manorLantern) continue;
+    drawLanternAt(l.x - worldOffset, l.y, l.size, l.type, l.phase);
+  }
+
+  // Guard
+  if (guard.active) drawGuard();
+
+  // Raiu
+  drawRaiu();
+
+  // Particles
+  drawParticles();
+
+  // Vignette
+  const vig = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.85);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(0,0,0,0.6)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawBgBuildings(parallax) {
+  const off = worldOffset * parallax;
+  ctx.save();
+  for (let i = 0; i < 20; i++) {
+    const bx = (i * 220 - off % (220 * 20)) % (W + 400) - 100;
+    const bh = 60 + (i * 37) % 80;
+    const by = H * 0.7 - bh;
+    // Building silhouette
+    ctx.fillStyle = '#060b14';
+    ctx.fillRect(bx, by, 80 + (i * 17) % 60, bh);
+    // Roof ridge
+    ctx.fillStyle = '#08101c';
+    ctx.beginPath();
+    ctx.moveTo(bx - 5, by + 5);
+    ctx.lineTo(bx + 40 + (i*17)%30, by - 8);
+    ctx.lineTo(bx + 85 + (i*17)%60, by + 5);
+    ctx.fill();
+    // Tiny windows
+    if (Math.random() > 0.5) {
+      ctx.fillStyle = `rgba(200,140,40,${0.1 + 0.1 * Math.sin(t*0.05 + i)})`;
+      ctx.fillRect(bx + 10, by + bh * 0.3, 8, 10);
+      ctx.fillRect(bx + 30, by + bh * 0.5, 8, 10);
+    }
+  }
+  ctx.restore();
+}
+
+function drawRoofPlatforms() {
+  for (const p of platforms) {
+    if (p.type === 'ground') continue;
+    const px = p.x - worldOffset;
+    if (px + p.w < -50 || px > W + 50) continue;
+
+    // Roof body
+    const roofGrad = ctx.createLinearGradient(px, p.y, px, p.y + p.h);
+    roofGrad.addColorStop(0, '#1a2235');
+    roofGrad.addColorStop(1, '#0d1420');
+    ctx.fillStyle = roofGrad;
+    ctx.fillRect(px, p.y, p.w, p.h);
+
+    // Roof ridge (curved top)
+    ctx.fillStyle = '#242f44';
+    ctx.beginPath();
+    ctx.moveTo(px - 6, p.y + 3);
+    ctx.lineTo(px + p.w / 2, p.y - (p.ridgeH || 12));
+    ctx.lineTo(px + p.w + 6, p.y + 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Ridge highlight
+    ctx.strokeStyle = 'rgba(200,169,110,0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px - 4, p.y + 3);
+    ctx.lineTo(px + p.w / 2, p.y - (p.ridgeH || 12) + 1);
+    ctx.lineTo(px + p.w + 4, p.y + 3);
+    ctx.stroke();
+
+    // Roof tiles suggestion
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let tx = px + 10; tx < px + p.w - 10; tx += 18) {
+      ctx.beginPath();
+      ctx.moveTo(tx, p.y + 3);
+      ctx.lineTo(tx, p.y + p.h);
+      ctx.stroke();
+    }
+
+    // Under-eave glow (warm)
+    const eave = ctx.createLinearGradient(px, p.y + p.h - 4, px, p.y + p.h + 8);
+    eave.addColorStop(0, 'rgba(180,100,30,0.06)');
+    eave.addColorStop(1, 'transparent');
+    ctx.fillStyle = eave;
+    ctx.fillRect(px, p.y + p.h - 4, p.w, 12);
+  }
+}
+
+function drawLanterns(front) {
+  for (const l of lanterns) {
+    const lx = l.x - worldOffset * 0.6;
+    if (lx < -50 || lx > W + 50) continue;
+    const depth = l.y / H;
+    const isFront = depth > 0.4;
+    if (isFront !== front) continue;
+    drawLanternAt(lx, l.y, l.size, l.type, l.phase + t * l.speed * 0.02);
+  }
+}
+
+function drawLanternAt(x, y, size, type, phase) {
+  const flicker = 0.85 + 0.15 * Math.sin(phase * 3.7);
+  const color = type === 'red' ? PAL.lantern_r : '#c8a040';
+  const glowColor = type === 'red' ? 'rgba(220,60,20,' : 'rgba(200,160,40,';
+
+  // Glow
+  const g = ctx.createRadialGradient(x, y, 0, x, y, size * 4);
+  g.addColorStop(0, glowColor + (0.12 * flicker) + ')');
+  g.addColorStop(1, 'transparent');
+  ctx.fillStyle = g;
+  ctx.fillRect(x - size * 4, y - size * 4, size * 8, size * 8);
+
+  // String
+  ctx.strokeStyle = 'rgba(180,160,120,0.3)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(x, y - size * 1.5);
+  ctx.lineTo(x, y - size * 2.5);
+  ctx.stroke();
+
+  // Body
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1, 1.3);
+  const bodyG = ctx.createRadialGradient(-size * 0.2, -size * 0.1, 0, 0, 0, size);
+  bodyG.addColorStop(0, type === 'red' ? '#ff8866' : '#ffe080');
+  bodyG.addColorStop(0.5, color);
+  bodyG.addColorStop(1, type === 'red' ? '#660011' : '#604010');
+  ctx.beginPath();
+  ctx.arc(0, 0, size * flicker, 0, Math.PI * 2);
+  ctx.fillStyle = bodyG;
+  ctx.fill();
+
+  // Rim
+  ctx.strokeStyle = type === 'red' ? '#ff4422' : '#c8a040';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+  ctx.restore();
+
+  // Top cap
+  ctx.fillStyle = '#8a7040';
+  ctx.fillRect(x - size * 0.4, y - size * 1.3, size * 0.8, size * 0.3);
+}
+
+function drawRaiuSprite(rx, ry, w, h, f, reinforce, hurt) {
+  const pose = raiu.attacking ? RAIU_SPRITES.attack : (raiu.state === 'run' ? RAIU_SPRITES.back : RAIU_SPRITES.idle);
+  const footX = rx + w * 0.5;
+  const footY = ry + h + 8;
+  const flip = raiu.attacking ? f > 0 : f < 0;
+  const drawX = raiu.attacking ? -pose.dw * 0.72 : -pose.dw * 0.5;
+  const drawY = -pose.dh + 8;
+
+  ctx.save();
+  ctx.globalAlpha = hurt && Math.floor(t / 3) % 2 === 0 ? 0.42 : 1;
+  ctx.translate(footX, footY);
+  if (flip) ctx.scale(-1, 1);
+
+  ctx.save();
+  ctx.globalAlpha = 0.45;
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.ellipse(0, 4, w * 1.4, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  if (reinforce) {
+    const aura = ctx.createRadialGradient(0, -h * 0.55, 8, 0, -h * 0.55, 90);
+    aura.addColorStop(0, 'rgba(255,150,50,0.28)');
+    aura.addColorStop(0.55, 'rgba(255,210,80,0.10)');
+    aura.addColorStop(1, 'transparent');
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.ellipse(0, -h * 0.45, 68, 86, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.filter = reinforce ? 'contrast(1.12) saturate(1.25)' : 'contrast(1.08) saturate(1.06)';
+  ctx.drawImage(pose.img, drawX, drawY, pose.dw, pose.dh);
+  ctx.filter = 'none';
+
+  if (raiu.attacking) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = reinforce ? 'rgba(255,190,80,0.95)' : 'rgba(180,230,255,0.95)';
+    ctx.lineWidth = reinforce ? 9 : 7;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(-28, -h * 0.62, reinforce ? 68 : 54, Math.PI * 1.18, Math.PI * 1.78);
+    ctx.stroke();
+    ctx.strokeStyle = reinforce ? 'rgba(255,240,150,0.8)' : 'rgba(245,255,255,0.85)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(-28, -h * 0.62, reinforce ? 78 : 63, Math.PI * 1.17, Math.PI * 1.75);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawRaiu() {
+  const rx = raiu.x - worldOffset;
+  const ry = raiu.y;
+  const w = raiu.w, h = raiu.h;
+  const f = raiu.facing;
+  const hurt = raiu.hurt;
+  const reinforce = raiu.reinforceActive;
+
+  if (raiuSpriteReady) {
+    drawRaiuSprite(rx, ry, w, h, f, reinforce, hurt);
+    return;
+  }
+
+  ctx.save();
+  ctx.translate(rx + w / 2, ry + h / 2);
+
+  // Hurt flash
+  if (hurt && Math.floor(t / 3) % 2 === 0) {
+    ctx.globalAlpha = 0.4;
+  }
+
+  // Reinforce aura
+  if (reinforce) {
+    const aura = ctx.createRadialGradient(0, 0, 10, 0, h * 0.1, h * 0.7);
+    aura.addColorStop(0, 'rgba(255,140,40,0.25)');
+    aura.addColorStop(0.5, 'rgba(255,200,60,0.1)');
+    aura.addColorStop(1, 'transparent');
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.ellipse(0, h * 0.1, w * 1.8, h * 0.75, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Chi jump glow
+  if (raiu.chiJumpActive) {
+    const chiAura = ctx.createRadialGradient(0, h * 0.3, 5, 0, h * 0.3, 55);
+    chiAura.addColorStop(0, 'rgba(100,180,255,0.2)');
+    chiAura.addColorStop(1, 'transparent');
+    ctx.fillStyle = chiAura;
+    ctx.fillRect(-55, -h * 0.2, 110, h * 1.2);
+  }
+
+  // Cape (behind body)
+  const capeWave = Math.sin(raiu.capePhase) * 6 * (raiu.state === 'run' ? 2 : 1);
+  ctx.save();
+  ctx.scale(f, 1);
+  // Cape shadow/volume
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.3, -h * 0.35);
+  ctx.bezierCurveTo(-w * 0.1, h * 0.1, w * 0.4 + capeWave, h * 0.3, w * 0.2 + capeWave * 0.5, h * 0.5);
+  ctx.bezierCurveTo(w * 0.1, h * 0.4, -w * 0.5, h * 0.2, -w * 0.6, h * 0.5 + capeWave * 0.7);
+  ctx.bezierCurveTo(-w * 0.8, h * 0.3, -w * 0.6, -h * 0.1, -w * 0.3, -h * 0.35);
+  ctx.fillStyle = reinforce ? '#1a0800' : '#06080f';
+  ctx.fill();
+  // Cape sheen
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.25, -h * 0.3);
+  ctx.bezierCurveTo(-w * 0.05, h * 0.05, w * 0.3 + capeWave, h * 0.25, w * 0.1 + capeWave * 0.4, h * 0.45);
+  ctx.strokeStyle = reinforce ? 'rgba(255,120,40,0.3)' : 'rgba(60,100,200,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Body
+  ctx.save();
+  ctx.scale(f, 1);
+  // Torso
+  ctx.beginPath();
+  ctx.roundRect(-w * 0.32, -h * 0.38, w * 0.64, h * 0.55, 4);
+  const bodyG = ctx.createLinearGradient(-w * 0.3, -h * 0.35, w * 0.3, h * 0.15);
+  bodyG.addColorStop(0, reinforce ? '#1f0e00' : '#10141e');
+  bodyG.addColorStop(1, reinforce ? '#0d0600' : '#080b12');
+  ctx.fillStyle = bodyG;
+  ctx.fill();
+  // Body edge highlight
+  ctx.strokeStyle = reinforce ? 'rgba(255,140,40,0.4)' : 'rgba(80,120,220,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Hood
+  ctx.beginPath();
+  ctx.arc(0, -h * 0.38, w * 0.35, Math.PI, Math.PI * 2);
+  ctx.fillStyle = reinforce ? '#1a0800' : '#0a0d18';
+  ctx.fill();
+  ctx.strokeStyle = reinforce ? 'rgba(255,140,40,0.3)' : 'rgba(60,100,200,0.2)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Face
+  ctx.beginPath();
+  ctx.ellipse(w * 0.05, -h * 0.28, w * 0.2, w * 0.22, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#c4a882';
+  ctx.fill();
+
+  // Eyes — the key expressiveness
+  const eyeX = w * 0.08;
+  const eyeY = -h * 0.3;
+  // Eye glow
+  const eyeG = ctx.createRadialGradient(eyeX, eyeY, 0, eyeX, eyeY, 8);
+  eyeG.addColorStop(0, reinforce ? '#ffaa44' : '#88bbff');
+  eyeG.addColorStop(1, 'transparent');
+  ctx.fillStyle = eyeG;
+  ctx.beginPath();
+  ctx.ellipse(eyeX, eyeY, 8, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Iris
+  ctx.beginPath();
+  ctx.ellipse(eyeX, eyeY, 3.5, 3, 0, 0, Math.PI * 2);
+  ctx.fillStyle = reinforce ? '#ff8833' : '#4488dd';
+  ctx.fill();
+  // Pupil
+  ctx.beginPath();
+  ctx.ellipse(eyeX, eyeY, 1.5, 1.5, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+
+  // Legs
+  const legBob = raiu.state === 'run' ? Math.sin(raiu.animFrame * Math.PI / 2) * 6 : 0;
+  ctx.fillStyle = reinforce ? '#150800' : '#0d1020';
+  // Left leg
+  ctx.beginPath();
+  ctx.roundRect(-w * 0.22, h * 0.14, w * 0.18, h * 0.38 + legBob, 3);
+  ctx.fill();
+  // Right leg
+  ctx.beginPath();
+  ctx.roundRect(w * 0.04, h * 0.14, w * 0.18, h * 0.38 - legBob, 3);
+  ctx.fill();
+
+  // Arm / Attack
+  if (raiu.attacking) {
+    ctx.strokeStyle = reinforce ? '#ff8833' : '#aaccff';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(w * 0.15, -h * 0.1);
+    ctx.lineTo(w * 0.55, h * 0.05);
+    ctx.stroke();
+    // Blade flash
+    ctx.strokeStyle = reinforce ? 'rgba(255,200,80,0.7)' : 'rgba(200,230,255,0.7)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.3, -h * 0.05);
+    ctx.lineTo(w * 0.7, h * 0.1);
+    ctx.stroke();
+  } else {
+    // Idle arm
+    ctx.strokeStyle = reinforce ? '#1a0800' : '#0d1020';
+    ctx.lineWidth = 9;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(w * 0.1, -h * 0.08);
+    ctx.lineTo(w * 0.28, h * 0.08);
+    ctx.stroke();
+  }
+
+  ctx.restore(); // scale f
+  ctx.restore(); // translate
+}
+
+function drawGuard() {
+  if (guard.state === 'dead') return;
+  const gx = guard.x - worldOffset;
+  const gy = guard.y;
+  const gw = guard.w, gh = guard.h;
+  const f = guard.facing;
+
+  if (guardSpriteReady) {
+    const pose = guard.state === 'attack' ? GUARD_SPRITES.attack : GUARD_SPRITES.front;
+    const footX = gx + gw * 0.5;
+    const footY = gy + gh + 5;
+    const flip = f < 0;
+    const drawX = guard.state === 'attack' ? -pose.dw * 0.38 : -pose.dw * 0.5;
+    const drawY = -pose.dh + 8;
+
+    ctx.save();
+    ctx.translate(footX, footY);
+    if (flip) ctx.scale(-1, 1);
+
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(0, 2, gw * 1.7, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    if (guard.state === 'alert' || guard.state === 'attack') {
+      const eyeGlow = ctx.createRadialGradient(0, -gh * 0.85, 0, 0, -gh * 0.85, 70);
+      eyeGlow.addColorStop(0, 'rgba(255,120,20,0.2)');
+      eyeGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = eyeGlow;
+      ctx.fillRect(-70, -gh * 1.35, 140, gh * 1.15);
+    }
+
+    ctx.filter = guard.state === 'hurt' ? 'brightness(1.7) saturate(0.7)' : 'contrast(1.08) saturate(1.08)';
+    ctx.drawImage(pose.img, drawX, drawY, pose.dw, pose.dh);
+    ctx.filter = 'none';
+    ctx.restore();
+
+    if (guard.hp < guard.maxHp) {
+      ctx.save();
+      ctx.translate(gx + gw / 2, gy - 14);
+      const hpW = 54;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(-hpW/2, 0, hpW, 5);
+      ctx.fillStyle = '#cc3333';
+      ctx.fillRect(-hpW/2, 0, hpW * guard.hp / guard.maxHp, 5);
+      ctx.restore();
+    }
+    return;
+  }
+
+  ctx.save();
+  ctx.translate(gx + gw / 2, gy + gh / 2);
+  ctx.scale(f, 1);
+
+  // Body
+  ctx.beginPath();
+  ctx.roundRect(-gw * 0.4, -gh * 0.42, gw * 0.8, gh * 0.58, 3);
+  const armG = ctx.createLinearGradient(-gw * 0.4, -gh * 0.4, gw * 0.4, gh * 0.15);
+  armG.addColorStop(0, '#1e1408');
+  armG.addColorStop(1, '#0f0a04');
+  ctx.fillStyle = armG;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(180,120,40,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Helmet
+  ctx.beginPath();
+  ctx.arc(0, -gh * 0.38, gw * 0.32, Math.PI, Math.PI * 2);
+  ctx.fillStyle = '#1a1208';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(180,120,40,0.4)';
+  ctx.stroke();
+  // Plume
+  ctx.strokeStyle = '#8b1a1a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, -gh * 0.5);
+  ctx.bezierCurveTo(gw * 0.3, -gh * 0.65, gw * 0.2, -gh * 0.45, 0, -gh * 0.42);
+  ctx.stroke();
+
+  // Eyes (menacing)
+  ctx.fillStyle = guard.state === 'alert' ? '#ff4422' : '#884422';
+  ctx.fillRect(-gw * 0.15, -gh * 0.34, gw * 0.08, 3);
+  ctx.fillRect(gw * 0.07, -gh * 0.34, gw * 0.08, 3);
+
+  // Spear
+  ctx.strokeStyle = '#7a6030';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(gw * 0.3, -gh * 0.2);
+  ctx.lineTo(gw * 0.3, gh * 0.5);
+  ctx.stroke();
+  ctx.fillStyle = '#c0c8d0';
+  ctx.beginPath();
+  ctx.moveTo(gw * 0.3, -gh * 0.35);
+  ctx.lineTo(gw * 0.22, -gh * 0.2);
+  ctx.lineTo(gw * 0.38, -gh * 0.2);
+  ctx.closePath();
+  ctx.fill();
+
+  // Legs
+  ctx.fillStyle = '#130e04';
+  ctx.beginPath();
+  ctx.roundRect(-gw * 0.25, gh * 0.14, gw * 0.2, gh * 0.38, 3);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(gw * 0.05, gh * 0.14, gw * 0.2, gh * 0.38, 3);
+  ctx.fill();
+
+  // HP visual on guard
+  if (guard.hp < guard.maxHp) {
+    ctx.restore();
+    ctx.save();
+    ctx.translate(gx + gw / 2, gy - 10);
+    const hpW = 40;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(-hpW/2, 0, hpW, 4);
+    ctx.fillStyle = '#cc3333';
+    ctx.fillRect(-hpW/2, 0, hpW * guard.hp / guard.maxHp, 4);
+  }
+
+  ctx.restore();
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    const sx = p.x - worldOffset;
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    let color = '#ffffff';
+    if (p.type === 'chi') color = '#88ccff';
+    else if (p.type === 'reinforce') color = '#ff8833';
+    else if (p.type === 'slash') color = '#ccddff';
+
+    if (p.type === 'chi') {
+      // Chi sparkle
+      const g = ctx.createRadialGradient(sx, p.y, 0, sx, p.y, p.size * 2);
+      g.addColorStop(0, '#aaddff');
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(sx, p.y, p.size * 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (p.type === 'reinforce') {
+      ctx.fillStyle = color;
+      ctx.shadowColor = '#ff8833';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(sx, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = p.size * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(sx, p.y);
+      ctx.lineTo(sx + p.vx * 3, p.y + p.vy * 3);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// ─── LOOP ──────────────────────────────────────────────────
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+generateRooftops();
+generateLanterns();
+generateStars();
+
+// Set manor lanterns
+for (let i = 0; i < 18; i++) {
+  lanterns.push({
+    x: 100 + i * 280,
+    y: H * 0.15 + Math.random() * 40,
+    size: 10 + Math.random() * 6,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0,
+    drift: 0,
+    type: 'red',
+    manorLantern: true,
+  });
+}
+
+// Position Raiu on first rooftop
+raiu.x = 150;
+raiu.y = H * 0.72 - 80 - raiu.h;
+
+// Show opening narrative, or jump directly to the manor for asset/combat checks.
+if (new URLSearchParams(window.location.search).get('start') === 'manor') {
+  sceneTitle.classList.add('visible');
+  setTimeout(enterManorPhase, 200);
+} else {
+  setTimeout(() => showNarrative(0), 800);
+  setTimeout(() => sceneTitle.classList.add('visible'), 400);
+}
+
+loop();
+</script>
+</body>
+</html>

@@ -17,6 +17,14 @@ Le manoir doit servir de niveau test controle avant Tyrih. Il doit valider:
 - objectif de vol;
 - transition de retour vers le RPG principal plus tard.
 
+Une sous-phase d'infiltration est ajoutee avant le manoir existant:
+
+```text
+docs/CHANTIER_001_MANOIR_ENTRY.md
+```
+
+Cette sous-phase `manorEntry` ne remplace pas le manoir actuel. Elle sert de couloir d'entree avec backgrounds peints, gardes, checkpoints et grappin.
+
 ## Etat actuel
 
 Le prototype HTML/canvas contient deja:

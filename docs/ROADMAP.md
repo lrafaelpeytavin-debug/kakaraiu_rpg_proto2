@@ -71,6 +71,7 @@ Le prototype contient deja:
 
 - une scene de toits de Tyrih generee en canvas;
 - une transition vers le manoir;
+- une phase `manorEntry` avant le manoir existant;
 - une phase manoir/fight;
 - Raiu jouable;
 - jauge de chi d'allegement;
@@ -80,7 +81,12 @@ Le prototype contient deja:
 - musique `lantern-debt.mp3`;
 - mode de test direct du manoir via `?start=manor`;
 - background peint `assets/manor-bg.png` integre dans le manoir;
+- backgrounds `assets/manor-entry-01.png` et `assets/manor-entry-02.png`;
 - camera horizontale scrollable dans le manoir.
+- camera horizontale scrollable dans `manorEntry`;
+- grappin prototype sur touche `E`;
+- gardes simples dans l'entree du manoir;
+- checkpoints simples dans `manorEntry`.
 
 ## Chantiers ouverts
 
@@ -92,6 +98,18 @@ Voir:
 
 ```text
 docs/CHANTIER_001_MANOIR.md
+```
+
+Priorite: haute.
+
+### Chantier 1A - Entree du manoir
+
+Objectif: ajouter une phase d'infiltration avant le manoir existant, sans remplacer la scene actuelle.
+
+Voir:
+
+```text
+docs/CHANTIER_001_MANOIR_ENTRY.md
 ```
 
 Priorite: haute.
@@ -116,6 +134,7 @@ Assets deja presents:
 - garde attack;
 - musique `lantern-debt.mp3`;
 - background manoir `manor-bg.png`.
+- backgrounds entree manoir `manor-entry-01.png` et `manor-entry-02.png`.
 
 Assets a produire ensuite:
 
@@ -144,6 +163,7 @@ Decisions actuelles:
 - renforcement en aura/timer;
 - chute = perte de vie + retour checkpoint;
 - mort = respawn narratif, pas game over brutal.
+- grappin = points d'accroche definis, corde visible, traction/projection.
 
 ### Chantier 4 - Refactor du code
 
@@ -182,17 +202,20 @@ Ne pas faire maintenant: transformer le repo actuel en projet RPG Maker.
 - Le manoir est la premiere scene a stabiliser avant Tyrih.
 - Le procedurale pur doit devenir semi-procedural: code pour placer, images peintes pour incarner.
 - Le niveau peut etre construit avec un grand background scrolling, ou avec plusieurs sections peintes assemblees.
+- `manorEntry` utilise deux backgrounds assembles horizontalement.
 - Les collisions restent codees/invisibles au debut.
+- Le grappin ne s'accroche que sur des points definis dans le level design.
 - La vie de Raiu sera representee par des coeurs.
 - Le chi reste une jauge.
 - Les scenes validees pourront etre portees dans RPG Maker plus tard.
 
 ## Prochaine action recommandee
 
-Stabiliser le manoir:
+Stabiliser `manorEntry` puis le manoir:
 
-1. corriger les limites de niveau et la chute;
-2. ajouter les coeurs de vie de Raiu;
-3. ajouter un checkpoint de respawn;
-4. placer un objectif visible: coffre, porte ou broche;
-5. ajuster les collisions invisibles sur `manor-bg.png`.
+1. tester `?start=manorEntry`;
+2. ajuster les collisions sur les deux backgrounds d'entree;
+3. valider les points d'accroche du grappin;
+4. ajouter les coeurs de vie de Raiu;
+5. placer un objectif visible: coffre, porte ou broche;
+6. ajuster les collisions invisibles sur `manor-bg.png`.

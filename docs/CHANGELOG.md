@@ -6,6 +6,10 @@
   - suppression de plateformes invisibles qui faisaient marcher Raiu dans le vide;
   - creation d'un sol plus continu sur le grand toit visible;
   - ajout du debug collisions Tyrih via `?debug=tyrih`.
+- Passe annotations Tyrih:
+  - remplacement des grandes collisions par des segments plus courts;
+  - ajout des portions jaunes signalees sur les captures;
+  - retrait/raccourcissement des portions rouges signalees sur les captures.
 - Correction `manorEntry`:
   - premier garde replace sur une plateforme reelle;
   - plateformes hautes legerement remontees pour mieux coller au decor;

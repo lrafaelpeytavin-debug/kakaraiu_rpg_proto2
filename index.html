@@ -430,14 +430,11 @@ const tyrihSections = [
     image: tyrihRooftopImages[1],
     music: 'assets/tyrih-lantern-debt.mp3',
     platforms: [
-      [0.00, 0.55, 0.12],
-      [0.12, 0.64, 0.12],
-      [0.27, 0.79, 0.15],
-      [0.43, 0.76, 0.11],
-      [0.55, 0.68, 0.10],
-      [0.67, 0.58, 0.12],
-      [0.82, 0.62, 0.16],
-      [0.94, 0.76, 0.08],
+      [0.00, 0.55, 0.10],
+      [0.12, 0.64, 0.10],
+      [0.27, 0.78, 0.32],
+      [0.78, 0.60, 0.16],
+      [0.94, 0.76, 0.06],
     ],
     anchors: [
       [0.16, 0.36, 'corde-marche-01'],
@@ -473,7 +470,7 @@ let manorEntryWorldWidth = 0;
 let manorEntryPanelWidth = 0;
 const DEBUG_MANOR_COLLISIONS = false;
 const DEBUG_MANOR_ENTRY = false;
-const DEBUG_TYRIH_COLLISIONS = false;
+const DEBUG_TYRIH_COLLISIONS = new URLSearchParams(window.location.search).get('debug') === 'tyrih';
 
 // ─── NARRATIVE SYSTEM ──────────────────────────────────────
 const narrativeQueue = [
@@ -1651,8 +1648,16 @@ function drawRooftopScene() {
 
   if (DEBUG_TYRIH_COLLISIONS) {
     for (const p of platforms) {
-      ctx.fillStyle = 'rgba(120,200,255,0.24)';
-      ctx.fillRect(p.x - worldOffset, p.y, p.w, p.h);
+      const px = p.x - worldOffset;
+      if (px + p.w < -40 || px > W + 40) continue;
+      ctx.fillStyle = 'rgba(120,200,255,0.28)';
+      ctx.fillRect(px, p.y, p.w, p.h);
+      ctx.strokeStyle = 'rgba(220,245,255,0.8)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px, p.y, p.w, p.h);
+      ctx.fillStyle = 'rgba(230,245,255,0.92)';
+      ctx.font = '11px monospace';
+      ctx.fillText(`${p.section || 'tyrih'} ${Math.round(p.x)} ${Math.round(p.y)}`, px + 4, p.y - 4);
     }
   }
 

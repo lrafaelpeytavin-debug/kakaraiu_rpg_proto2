@@ -2,6 +2,10 @@
 
 ## Non publie
 
+- Correction Tyrih Section 2:
+  - suppression de plateformes invisibles qui faisaient marcher Raiu dans le vide;
+  - creation d'un sol plus continu sur le grand toit visible;
+  - ajout du debug collisions Tyrih via `?debug=tyrih`.
 - Correction `manorEntry`:
   - premier garde replace sur une plateforme reelle;
   - plateformes hautes legerement remontees pour mieux coller au decor;

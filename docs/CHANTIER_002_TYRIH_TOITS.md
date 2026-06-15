@@ -221,3 +221,31 @@ Lantern Debt (1).mp3
 4. Generer une vraie Section 1B.
 5. Extraire ensuite `tyrihSections` dans des donnees plus lisibles si la liste grossit.
 6. Ajouter une vraie Section 3 dediee au grand gap.
+
+## Retour test collisions
+
+Observation:
+
+- certaines plateformes invisibles existent dans le vide;
+- certaines surfaces visibles n'ont pas de collision;
+- certaines collisions sont trop hautes par rapport au decor;
+- ces erreurs rendent le grappin impossible a evaluer correctement.
+
+Correction appliquee:
+
+- nettoyage conservateur de la Section 2;
+- suppression de plusieurs plateformes douteuses;
+- ajout d'un sol plus continu sur le grand toit visible;
+- activation d'un overlay debug avec:
+
+```text
+?debug=tyrih
+```
+
+Regle de travail:
+
+```text
+si le decor ne montre pas clairement un sol, ne pas mettre de plateforme invisible
+```
+
+La prochaine passe doit se faire avec captures en mode debug, section par section.

@@ -2,6 +2,16 @@
 
 ## Non publie
 
+- Ajout du document `CHANTIER_003_BACKGROUNDS_ASSETS.md`.
+- Ajout du document `CHANTIER_004_GRAPPIN.md`.
+- Refactor Tyrih: les plateformes et points de grappin viennent maintenant de `tyrihSections`.
+- Premier passage de grappin pendulaire:
+  - angle;
+  - vitesse angulaire;
+  - swing en l'air;
+  - marche au sol conservee quand la corde est accrochee;
+  - relachement base sur l'elan tangent.
+- Mise a jour du panneau pedagogique du grappin.
 - Ajout de la vie de Raiu en 3 coeurs.
 - Degats garde:
   - normal = 1 coeur;

@@ -234,11 +234,11 @@ Physique actuelle:
 
 - recherche du point d'accroche dans la direction visee;
 - corde visible;
-- tension de corde non bloquante;
-- Raiu peut encore marcher et sauter pendant que la corde est accrochee;
-- si Raiu tombe ou saute, la corde le retient quand elle devient tendue;
+- au sol, la corde ne bloque pas la marche;
+- en l'air, la corde passe en pendule autour du point d'accroche;
+- relachement avec projection basee sur l'elan tangent;
 - raccourcir/allonger avec haut/bas pendant l'accroche;
-- relachement avec projection.
+- chi d'allegement qui adoucit la gravite du swing.
 
 Parametres prototype:
 
@@ -250,6 +250,19 @@ GRAPPLE_RELEASE_MULT = 1.1
 GRAPPLE_SHORTEN_SPEED = 3px/frame
 GRAPPLE_LENGTHEN_SPEED = 2px/frame
 GRAPPLE_CHI_GRAVITY = 0.25
+GRAPPLE_SWING_GRAVITY = 0.55
+```
+
+Voir aussi:
+
+```text
+docs/CHANTIER_004_GRAPPIN.md
+```
+
+Regle importante:
+
+```text
+si le grappin ne sert a rien, il faut d'abord corriger le level design
 ```
 
 Ameliorations futures:

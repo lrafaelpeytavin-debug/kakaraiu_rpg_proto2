@@ -89,7 +89,28 @@ tyrihRooftopImages[0] = assets/tyrih-rooftop-01-slums.png
 tyrihRooftopImages[1] = assets/tyrih-rooftop-02-market.png
 ```
 
-Les collisions restent invisibles et codees dans `generateRooftops()`.
+Les collisions restent invisibles, mais elles ne sont plus listees directement dans `generateRooftops()`.
+
+Premier refactor applique:
+
+```js
+const tyrihSections = [
+  {
+    id: "slums_start",
+    image: tyrihRooftopImages[0],
+    platforms: [],
+    anchors: []
+  },
+  {
+    id: "market_opening",
+    image: tyrihRooftopImages[1],
+    platforms: [],
+    anchors: []
+  }
+];
+```
+
+`generateRooftops()` lit maintenant ces objets pour creer les plateformes et les points de grappin.
 
 Des points de grappin prototype sont ajoutes dans les deux sections, surtout autour des mats, cordes et lanternes de la Section 2.
 
@@ -198,5 +219,5 @@ Lantern Debt (1).mp3
 2. Tester les collisions sur Section 2.
 3. Ajuster les points de grappin Tyrih sur les mats/cordes visibles.
 4. Generer une vraie Section 1B.
-5. Refactorer `rooftops` en tableau `tyrihSections`.
+5. Extraire ensuite `tyrihSections` dans des donnees plus lisibles si la liste grossit.
 6. Ajouter une vraie Section 3 dediee au grand gap.

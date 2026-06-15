@@ -404,6 +404,50 @@ tyrihRooftopImages.forEach((img) => {
   });
 });
 
+const tyrihSections = [
+  {
+    id: 'slums_start',
+    image: tyrihRooftopImages[0],
+    music: 'assets/tyrih-lantern-debt.mp3',
+    platforms: [
+      [0.00, 0.28, 0.15],
+      [0.11, 0.52, 0.12],
+      [0.20, 0.74, 0.14],
+      [0.31, 0.82, 0.12],
+      [0.44, 0.78, 0.13],
+      [0.60, 0.70, 0.14],
+      [0.80, 0.54, 0.17],
+      [0.91, 0.70, 0.09],
+    ],
+    anchors: [
+      [0.24, 0.36, 'linge-01'],
+      [0.54, 0.34, 'lanterne-01'],
+      [0.73, 0.23, 'mat-01'],
+    ],
+  },
+  {
+    id: 'market_opening',
+    image: tyrihRooftopImages[1],
+    music: 'assets/tyrih-lantern-debt.mp3',
+    platforms: [
+      [0.00, 0.55, 0.12],
+      [0.12, 0.64, 0.12],
+      [0.27, 0.79, 0.15],
+      [0.43, 0.76, 0.11],
+      [0.55, 0.68, 0.10],
+      [0.67, 0.58, 0.12],
+      [0.82, 0.62, 0.16],
+      [0.94, 0.76, 0.08],
+    ],
+    anchors: [
+      [0.16, 0.36, 'corde-marche-01'],
+      [0.45, 0.30, 'mat-lanternes-01'],
+      [0.68, 0.30, 'toit-haut-01'],
+      [0.88, 0.38, 'enseigne-01'],
+    ],
+  },
+];
+
 const manorEntryImages = [new Image(), new Image()];
 manorEntryImages[0].src = 'assets/manor-entry-01.png';
 manorEntryImages[1].src = 'assets/manor-entry-02.png';
@@ -478,47 +522,34 @@ let worldSpeed = 0;
 function generateRooftops() {
   platforms = [];
   grappleAnchors.length = 0;
-  const sample = tyrihRooftopImages[0];
+  const sample = tyrihSections[0]?.image || tyrihRooftopImages[0];
   const ratio = sample && sample.naturalWidth ? sample.naturalWidth / sample.naturalHeight : 8 / 3;
   tyrihPanelWidth = Math.max(W, H * ratio);
-  tyrihWorldWidth = tyrihPanelWidth * 2;
+  tyrihWorldWidth = tyrihPanelWidth * tyrihSections.length;
 
   const tx = (panel, pct) => panel * tyrihPanelWidth + tyrihPanelWidth * pct;
   const ty = (pct) => H * pct;
-  const addRoof = (panel, x, y, w, h = 18, type = 'tyrih_roof') => {
-    platforms.push({ x: tx(panel, x), y: ty(y), w: tyrihPanelWidth * w, h, type });
-  };
-  const addTyrihAnchor = (panel, x, y, label) => {
-    grappleAnchors.push({ x: tx(panel, x), y: ty(y), label });
-  };
 
-  // Section 1: slums / rooftops opening toward Tyrih.
-  addRoof(0, 0.00, 0.28, 0.15);
-  addRoof(0, 0.11, 0.52, 0.12);
-  addRoof(0, 0.20, 0.74, 0.14);
-  addRoof(0, 0.31, 0.82, 0.12);
-  addRoof(0, 0.44, 0.78, 0.13);
-  addRoof(0, 0.60, 0.70, 0.14);
-  addRoof(0, 0.80, 0.54, 0.17);
-  addRoof(0, 0.91, 0.70, 0.09);
-
-  // Section 2: market panorama, wider gaps and first bigger jumps.
-  addRoof(1, 0.00, 0.55, 0.12);
-  addRoof(1, 0.12, 0.64, 0.12);
-  addRoof(1, 0.27, 0.79, 0.15);
-  addRoof(1, 0.43, 0.76, 0.11);
-  addRoof(1, 0.55, 0.68, 0.10);
-  addRoof(1, 0.67, 0.58, 0.12);
-  addRoof(1, 0.82, 0.62, 0.16);
-  addRoof(1, 0.94, 0.76, 0.08);
-
-  addTyrihAnchor(0, 0.24, 0.36, 'linge-01');
-  addTyrihAnchor(0, 0.54, 0.34, 'lanterne-01');
-  addTyrihAnchor(0, 0.73, 0.23, 'mat-01');
-  addTyrihAnchor(1, 0.16, 0.36, 'corde-marche-01');
-  addTyrihAnchor(1, 0.45, 0.30, 'mat-lanternes-01');
-  addTyrihAnchor(1, 0.68, 0.30, 'toit-haut-01');
-  addTyrihAnchor(1, 0.88, 0.38, 'enseigne-01');
+  tyrihSections.forEach((section, panel) => {
+    for (const [x, y, w, h = 18, type = 'tyrih_roof'] of section.platforms) {
+      platforms.push({
+        x: tx(panel, x),
+        y: ty(y),
+        w: tyrihPanelWidth * w,
+        h,
+        type,
+        section: section.id,
+      });
+    }
+    for (const [x, y, label] of section.anchors) {
+      grappleAnchors.push({
+        x: tx(panel, x),
+        y: ty(y),
+        label,
+        section: section.id,
+      });
+    }
+  });
 }
 
 // ─── LANTERNS ──────────────────────────────────────────────
@@ -629,6 +660,8 @@ const grapple = {
   mode: 'idle', // idle|attached|miss
   anchor: null,
   ropeLength: 0,
+  angle: 0,
+  angularVelocity: 0,
   timer: 0,
   vibration: 0,
 };
@@ -640,6 +673,8 @@ const GRAPPLE_RELEASE_MULT = 1.1;
 const GRAPPLE_SHORTEN_SPEED = 3;
 const GRAPPLE_LENGTHEN_SPEED = 2;
 const GRAPPLE_CHI_GRAVITY = 0.25;
+const GRAPPLE_SWING_GRAVITY = 0.55;
+const GRAPPLE_SWING_INPUT = 0.0009;
 
 // ─── KEYS ──────────────────────────────────────────────────
 const keys = {};
@@ -963,7 +998,7 @@ function maybeShowTutorials() {
     tutorialsShown.grapple = true;
     showNarrative2({
       title: '— Grappin —',
-      text: 'Les cercles bleus signalent des points solides: cordes, mats, lanternes. Appuie sur E ou sur le bouton Grappin pour accrocher, saute ou tombe pour tendre la corde, puis appuie encore pour relacher.',
+      text: 'Les cercles bleus signalent des points solides: cordes, mats, lanternes. Appuie sur E ou sur Grappin pour accrocher. Au sol, Raiu peut encore marcher; en l’air, la corde devient un pendule. Haut/bas regle la longueur, E relache l’elan.',
       onClose: () => { gameActive = true; }
     });
   }
@@ -1177,10 +1212,23 @@ function findGrappleTarget() {
 function toggleGrapple() {
   if (phase !== 'manorEntry' && phase !== 'rooftops') return;
   if (grapple.mode === 'attached') {
+    let usedSwingRelease = false;
+    if (!raiu.onGround && grapple.ropeLength > 0) {
+      const tangentX = Math.cos(grapple.angle);
+      const tangentY = -Math.sin(grapple.angle);
+      const releaseSpeed = grapple.angularVelocity * grapple.ropeLength * GRAPPLE_RELEASE_MULT;
+      if (Math.abs(releaseSpeed) > 0.5) {
+        raiu.vx = tangentX * releaseSpeed;
+        raiu.vy = tangentY * releaseSpeed;
+        usedSwingRelease = true;
+      }
+    }
     grapple.mode = 'idle';
     grapple.anchor = null;
-    raiu.vx *= GRAPPLE_RELEASE_MULT;
-    raiu.vy *= GRAPPLE_RELEASE_MULT;
+    if (!usedSwingRelease) {
+      raiu.vx *= GRAPPLE_RELEASE_MULT;
+      raiu.vy *= GRAPPLE_RELEASE_MULT;
+    }
     spawnParticle(raiu.x + raiu.w / 2, raiu.y + raiu.h * 0.3, 'slash');
     return;
   }
@@ -1198,8 +1246,11 @@ function toggleGrapple() {
   grapple.mode = 'attached';
   grapple.anchor = target;
   grapple.ropeLength = Math.max(GRAPPLE_MIN_DISTANCE, Math.hypot(target.x - cx, target.y - cy));
+  grapple.angle = Math.atan2(cx - target.x, cy - target.y);
+  const tangentX = Math.cos(grapple.angle);
+  const tangentY = -Math.sin(grapple.angle);
+  grapple.angularVelocity = (raiu.vx * tangentX + raiu.vy * tangentY) / grapple.ropeLength;
   grapple.vibration = 10;
-  raiu.onGround = false;
   spawnParticle(target.x, target.y, 'chi');
   triggerFlash('rgba(120,180,255,0.12)', 150);
 }
@@ -1229,30 +1280,38 @@ function updateGrapplePhysics() {
   const dx = centerX - grapple.anchor.x;
   const dy = centerY - grapple.anchor.y;
   const dist = Math.hypot(dx, dy) || 1;
-  const nx = dx / dist;
-  const ny = dy / dist;
 
-  if (dist > grapple.ropeLength) {
-    const stretch = dist - grapple.ropeLength;
-    const pull = Math.min(1.25, stretch * 0.035);
-    raiu.vx -= nx * pull;
-    raiu.vy -= ny * pull;
-
-    const radialVelocity = raiu.vx * nx + raiu.vy * ny;
-    if (radialVelocity > 0) {
-      raiu.vx -= radialVelocity * nx * 0.55;
-      raiu.vy -= radialVelocity * ny * 0.55;
-    }
-
-    if (stretch > 24) {
-      raiu.x -= nx * Math.min(8, stretch * 0.18);
-      raiu.y -= ny * Math.min(8, stretch * 0.18);
-    }
+  if (raiu.onGround) {
+    grapple.angle = Math.atan2(dx, dy);
+    grapple.ropeLength = Math.max(grapple.ropeLength, Math.min(GRAPPLE_MAX_DISTANCE, dist));
+    grapple.angularVelocity *= 0.9;
+    grapple.vibration = Math.max(0, grapple.vibration - 1);
+    return false;
   }
-  if (raiu.chiJumpActive) raiu.vy -= GRAVITY * (1 - GRAPPLE_CHI_GRAVITY);
-  raiu.vx *= GRAPPLE_DAMPING;
+
+  const oldCenterX = centerX;
+  const oldCenterY = centerY;
+  grapple.angle = Math.atan2(dx, dy);
+
+  const inputDir =
+    (keys['ArrowRight'] || keys['KeyD'] ? 1 : 0) -
+    (keys['ArrowLeft'] || keys['KeyA'] ? 1 : 0);
+  const gravityFactor = raiu.chiJumpActive ? GRAPPLE_CHI_GRAVITY : 1;
+  const swingGravity = (GRAPPLE_SWING_GRAVITY * gravityFactor / grapple.ropeLength) * Math.sin(grapple.angle);
+  grapple.angularVelocity += swingGravity + inputDir * GRAPPLE_SWING_INPUT;
+  grapple.angularVelocity *= raiu.chiJumpActive ? 0.998 : GRAPPLE_DAMPING;
+  grapple.angularVelocity = Math.max(-0.08, Math.min(0.08, grapple.angularVelocity));
+  grapple.angle += grapple.angularVelocity;
+
+  const newCenterX = grapple.anchor.x + Math.sin(grapple.angle) * grapple.ropeLength;
+  const newCenterY = grapple.anchor.y + Math.cos(grapple.angle) * grapple.ropeLength;
+  raiu.x = newCenterX - raiu.w * 0.5;
+  raiu.y = newCenterY - raiu.h * 0.35;
+  raiu.vx = newCenterX - oldCenterX;
+  raiu.vy = newCenterY - oldCenterY;
+  raiu.state = 'fall';
   grapple.vibration = Math.max(0, grapple.vibration - 1);
-  return false;
+  return true;
 }
 
 function updateRaiu() {
@@ -1552,8 +1611,8 @@ function drawRooftopScene() {
   ctx.fillRect(0, 0, W, H);
 
   const panelW = tyrihPanelWidth || W;
-  for (let i = 0; i < tyrihRooftopImages.length; i++) {
-    const img = tyrihRooftopImages[i];
+  for (let i = 0; i < tyrihSections.length; i++) {
+    const img = tyrihSections[i].image;
     const x = i * panelW - worldOffset;
     if (tyrihRooftopsReady) {
       ctx.drawImage(img, x, 0, panelW, H);

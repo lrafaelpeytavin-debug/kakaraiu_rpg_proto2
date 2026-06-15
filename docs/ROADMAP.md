@@ -131,18 +131,25 @@ Etat actuel:
 - Section 1 integree;
 - Section 2 integree;
 - collisions invisibles prototype;
+- premier tableau `tyrihSections` integre;
 - transition vers `manorEntry`.
 
 Decisions apres test:
 
 - les backgrounds actuels valident le pipeline mais sont encore trop serres;
 - generer une vraie Section 1B avant d'aller trop loin;
-- refactorer ensuite Tyrih en tableau `tyrihSections`;
+- extraire ensuite `tyrihSections` vers des donnees plus propres si le nombre de sections augmente;
 - ne pas repartir de zero: utiliser les images actuelles comme references de palette, lumiere et composition.
 
 ### Chantier 2 - Asset pipeline
 
 Objectif: produire les images une par une et les integrer proprement.
+
+Voir:
+
+```text
+docs/CHANTIER_003_BACKGROUNDS_ASSETS.md
+```
 
 Regle de base:
 
@@ -182,6 +189,7 @@ Voir:
 
 ```text
 docs/GAMEPLAY.md
+docs/CHANTIER_004_GRAPPIN.md
 ```
 
 Decisions actuelles:
@@ -192,7 +200,7 @@ Decisions actuelles:
 - renforcement reduit les degats de garde a 1/2 coeur;
 - chute = perte de vie + retour checkpoint;
 - mort = respawn narratif, pas game over brutal.
-- grappin = points d'accroche definis, corde visible, traction/projection.
+- grappin = points d'accroche definis, corde visible, pendule en l'air, marche au sol conservee.
 
 ### Chantier 4 - Refactor du code
 
@@ -234,6 +242,8 @@ Ne pas faire maintenant: transformer le repo actuel en projet RPG Maker.
 - `manorEntry` utilise deux backgrounds assembles horizontalement.
 - Les collisions restent codees/invisibles au debut.
 - Le grappin ne s'accroche que sur des points definis dans le level design.
+- Les backgrounds peints actuels restent des prototypes/references, pas des fichiers a jeter.
+- Le prochain niveau Tyrih doit etre pense en sections et, plus tard, en couches parallax.
 - La vie de Raiu sera representee par des coeurs.
 - Le chi reste une jauge.
 - Les scenes validees pourront etre portees dans RPG Maker plus tard.

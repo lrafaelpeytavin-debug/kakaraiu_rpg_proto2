@@ -203,3 +203,36 @@ Elements ajoutes:
 3. Ajouter une vraie UI de visee si la touche `E` manque de lisibilite.
 4. Transformer le respawn garde en perte de coeur quand la vie de Raiu sera implementee.
 5. Ajouter sons: claquement du grappin, corde tendue, ratage.
+
+## Retour test - garde, collisions, grappin
+
+Observation:
+
+- un garde pouvait tomber dans le decor et disparaitre;
+- certaines plateformes invisibles etaient legerement sous le rebord peint;
+- le grappin pouvait produire un mouvement de rotation absurde, proche d'un 360 degres;
+- le decor actuel ne propose pas encore de situation ou le grappin devient logique et necessaire.
+
+Correction appliquee:
+
+- le premier garde de `manorEntry` est replace sur une plateforme reelle;
+- quelques plateformes hautes ont ete remontees pour mieux correspondre au decor;
+- le grappin n'accroche plus les points situes sous Raiu;
+- la corde a maintenant un mou avant de controler Raiu;
+- l'angle de swing est limite pour rester dans une oscillation courte.
+
+Decision:
+
+```text
+physique grappin pas assez contrainte
++
+decor pas encore pense pour le grappin
+```
+
+Ces deux problemes se renforcent. Meme une meilleure physique paraitra mauvaise si le niveau ne propose pas de vrai gap, de point d'accroche lisible et de plateforme d'arrivee claire.
+
+Objectif prochain:
+
+```text
+aligner plateformes invisibles -> tester saut -> tester garde -> tester grappin -> seulement ensuite valider le decor
+```

@@ -675,6 +675,8 @@ const GRAPPLE_LENGTHEN_SPEED = 2;
 const GRAPPLE_CHI_GRAVITY = 0.25;
 const GRAPPLE_SWING_GRAVITY = 0.55;
 const GRAPPLE_SWING_INPUT = 0.0009;
+const GRAPPLE_SLACK = 18;
+const GRAPPLE_MAX_SWING_ANGLE = 1.18;
 
 // ─── KEYS ──────────────────────────────────────────────────
 const keys = {};
@@ -877,10 +879,10 @@ function setupManorEntryLevel() {
   addEntryPlatform(0, 0.17, 0.49, 0.10);
   addEntryPlatform(0, 0.32, 0.53, 0.15);
   addEntryPlatform(0, 0.51, 0.49, 0.16);
-  addEntryPlatform(0, 0.68, 0.37, 0.15);
+  addEntryPlatform(0, 0.68, 0.35, 0.15);
   addEntryPlatform(0, 0.75, 0.76, 0.15, 18, 'danger_spikes');
   addEntryPlatform(0, 0.83, 0.50, 0.12);
-  addEntryPlatform(0, 0.87, 0.26, 0.12);
+  addEntryPlatform(0, 0.87, 0.245, 0.12);
   addEntryPlatform(0, 0.88, 0.61, 0.10);
   addEntryPlatform(0, 0.00, 0.87, 0.34);
   addEntryPlatform(0, 0.42, 0.88, 0.23);
@@ -896,7 +898,7 @@ function setupManorEntryLevel() {
   addEntryPlatform(1, 0.65, 0.55, 0.18);
   addEntryPlatform(1, 0.74, 0.40, 0.11);
   addEntryPlatform(1, 0.78, 0.73, 0.14);
-  addEntryPlatform(1, 0.86, 0.30, 0.10);
+  addEntryPlatform(1, 0.86, 0.28, 0.10);
   addEntryPlatform(1, 0.89, 0.60, 0.11);
 
   addGrappleAnchor(0, 0.20, 0.26, 'potence-01');
@@ -910,7 +912,7 @@ function setupManorEntryLevel() {
   addGrappleAnchor(1, 0.73, 0.24, 'poutre-04');
   addGrappleAnchor(1, 0.86, 0.19, 'chaine-03');
 
-  addEntryGuard(0, 0.92, 0.85, 0.88, 0.98);
+  addEntryGuard(0, 0.53, 0.88, 0.44, 0.61);
   addEntryGuard(1, 0.66, 0.55, 0.62, 0.80);
 
   manorEntryCheckpoints.push({ x: entryX(0, 0.36), y: entryY(0.53) - raiu.h });
@@ -1198,6 +1200,7 @@ function findGrappleTarget() {
     const dy = anchor.y - cy;
     const dist = Math.hypot(dx, dy);
     if (dist > GRAPPLE_MAX_DISTANCE || dist < 35) continue;
+    if (dy > 20) continue;
     const dot = (dx / dist) * aim.x + (dy / dist) * aim.y;
     if (dot < 0.35) continue;
     const score = dot * 1000 - dist;
@@ -1281,6 +1284,12 @@ function updateGrapplePhysics() {
   const dy = centerY - grapple.anchor.y;
   const dist = Math.hypot(dx, dy) || 1;
 
+  if (grapple.anchor.y > centerY - 12) {
+    grapple.mode = 'idle';
+    grapple.anchor = null;
+    return false;
+  }
+
   if (raiu.onGround) {
     grapple.angle = Math.atan2(dx, dy);
     grapple.ropeLength = Math.max(grapple.ropeLength, Math.min(GRAPPLE_MAX_DISTANCE, dist));
@@ -1293,15 +1302,30 @@ function updateGrapplePhysics() {
   const oldCenterY = centerY;
   grapple.angle = Math.atan2(dx, dy);
 
+  if (dist < grapple.ropeLength - GRAPPLE_SLACK) {
+    const tangentX = Math.cos(grapple.angle);
+    const tangentY = -Math.sin(grapple.angle);
+    grapple.angularVelocity = (raiu.vx * tangentX + raiu.vy * tangentY) / Math.max(grapple.ropeLength, 1);
+    grapple.vibration = Math.max(0, grapple.vibration - 1);
+    return false;
+  }
+
   const inputDir =
     (keys['ArrowRight'] || keys['KeyD'] ? 1 : 0) -
     (keys['ArrowLeft'] || keys['KeyA'] ? 1 : 0);
   const gravityFactor = raiu.chiJumpActive ? GRAPPLE_CHI_GRAVITY : 1;
-  const swingGravity = (GRAPPLE_SWING_GRAVITY * gravityFactor / grapple.ropeLength) * Math.sin(grapple.angle);
+  const swingGravity = -(GRAPPLE_SWING_GRAVITY * gravityFactor / grapple.ropeLength) * Math.sin(grapple.angle);
   grapple.angularVelocity += swingGravity + inputDir * GRAPPLE_SWING_INPUT;
   grapple.angularVelocity *= raiu.chiJumpActive ? 0.998 : GRAPPLE_DAMPING;
-  grapple.angularVelocity = Math.max(-0.08, Math.min(0.08, grapple.angularVelocity));
+  grapple.angularVelocity = Math.max(-0.055, Math.min(0.055, grapple.angularVelocity));
   grapple.angle += grapple.angularVelocity;
+  if (grapple.angle > GRAPPLE_MAX_SWING_ANGLE) {
+    grapple.angle = GRAPPLE_MAX_SWING_ANGLE;
+    grapple.angularVelocity = Math.min(0, grapple.angularVelocity) * 0.35;
+  } else if (grapple.angle < -GRAPPLE_MAX_SWING_ANGLE) {
+    grapple.angle = -GRAPPLE_MAX_SWING_ANGLE;
+    grapple.angularVelocity = Math.max(0, grapple.angularVelocity) * 0.35;
+  }
 
   const newCenterX = grapple.anchor.x + Math.sin(grapple.angle) * grapple.ropeLength;
   const newCenterY = grapple.anchor.y + Math.cos(grapple.angle) * grapple.ropeLength;

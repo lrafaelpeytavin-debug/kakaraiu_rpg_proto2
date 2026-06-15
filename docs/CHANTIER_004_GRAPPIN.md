@@ -75,7 +75,7 @@ miss
 La version actuelle est volontairement simple, mais elle commence maintenant a distinguer deux comportements:
 
 - au sol: la corde reste attachee sans bloquer la marche;
-- en l'air: la corde impose un pendule autour du point d'accroche.
+- en l'air: la corde impose un pendule limite autour du point d'accroche.
 
 ## Physique actuelle implementee
 
@@ -84,6 +84,9 @@ Premier passage applique dans `index.html`:
 - `ropeLength`;
 - `angle`;
 - `angularVelocity`;
+- refus des accroches situees sous Raiu;
+- angle maximum pour eviter le 360 degres;
+- mou de corde avant prise de controle;
 - raccourcir/allonger la corde avec haut/bas;
 - relacher avec projection basee sur la vitesse tangentielle;
 - chi d'allegement qui adoucit la gravite du swing;
@@ -100,6 +103,8 @@ GRAPPLE_RELEASE_MULT = 1.1
 GRAPPLE_SHORTEN_SPEED = 3
 GRAPPLE_LENGTHEN_SPEED = 2
 GRAPPLE_CHI_GRAVITY = 0.25
+GRAPPLE_MAX_SWING_ANGLE = 1.18
+GRAPPLE_SLACK = 18
 ```
 
 ## Panneau pedagogique
@@ -147,10 +152,24 @@ corniche haute -> raccourcir corde -> atteindre balcon
 
 Le grappin ne doit pas corriger un mauvais level design.
 
-Si le joueur dit "le grappin ne sert a rien", la reponse prioritaire est:
+Si le joueur dit "le grappin ne sert a rien" ou "le grappin part n'importe ou", separer les deux causes:
+
+```text
+1. physique trop libre ou mal contrainte
+2. decor pas concu pour un usage logique du grappin
+```
+
+Reponse prioritaire cote niveau:
 
 - elargir les backgrounds;
 - ajouter des gaps;
 - placer les gardes sous les trajectoires;
 - rendre les points d'accroche evidents;
 - tester la trajectoire avant de generer le decor final.
+
+Reponse prioritaire cote physique:
+
+- refuser les points sous Raiu;
+- empecher les rotations completes;
+- favoriser un arc court;
+- garder une corde mecanique imparfaite, pas un pouvoir de vol.

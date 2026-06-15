@@ -206,6 +206,12 @@ Decisions actuelles:
 
 Objectif: eviter que `index.html` devienne impossible a maintenir.
 
+Voir:
+
+```text
+docs/CHANTIER_005_ARCHITECTURE_CODE.md
+```
+
 Decoupage recommande plus tard:
 
 - `src/core.js`;
@@ -218,6 +224,13 @@ Decoupage recommande plus tard:
 - `src/narrative.js`.
 
 Priorite: moyenne. Ne pas refactorer trop tot avant stabilisation du manoir.
+
+Decision apres test:
+
+- le fichier unique ralentit deja les corrections de collisions, gardes et grappin;
+- le prochain refactor doit commencer par les donnees de niveau;
+- ne pas tout decouper en une fois;
+- chaque extraction doit garder le prototype jouable.
 
 ### Chantier 5 - Portage RPG Maker futur
 

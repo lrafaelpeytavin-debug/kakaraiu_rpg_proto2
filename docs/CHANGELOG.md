@@ -2,6 +2,13 @@
 
 ## Non publie
 
+- Correction `manorEntry`:
+  - premier garde replace sur une plateforme reelle;
+  - plateformes hautes legerement remontees pour mieux coller au decor;
+  - ajout d'un mou de corde avant que le grappin ne controle Raiu en pendule;
+  - interdiction des accroches sous Raiu;
+  - angle de swing limite pour eviter le 360 degres absurde.
+- Ajout du document `CHANTIER_005_ARCHITECTURE_CODE.md`.
 - Ajout du document `CHANTIER_003_BACKGROUNDS_ASSETS.md`.
 - Ajout du document `CHANTIER_004_GRAPPIN.md`.
 - Refactor Tyrih: les plateformes et points de grappin viennent maintenant de `tyrihSections`.
